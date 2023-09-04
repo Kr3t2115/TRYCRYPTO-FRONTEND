@@ -1,0 +1,104 @@
+@import url("https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap");
+
+:root {
+  color-scheme: light dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  --bg-color: #181a1c;
+  --font-color: #fcd535;
+}
+
+.swiper-pagination-bullet-active {
+  background-color: var(--font-color) !important;
+}
+
+.swiper-pagination-bullet-active-next {
+  background-color: #fff !important;
+}
+.swiper-pagination-bullet-active-prev {
+  background-color: #fff !important;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  color: #fff !important;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.swiper-pagination {
+  margin-bottom: 10px;
+}
+
+.modal-content {
+  background-color: var(--bg-color);
+  border: 1px solid var(--font-color);
+}
+
+.nav-tabs {
+  display: flex;
+  justify-content: space-between;
+  border: none;
+  margin: 10px 0px;
+}
+
+.nav-item {
+  flex: 1;
+  color: #0b0e11;
+  font-weight: 700;
+}
+
+.nav-link {
+  width: 100%;
+  border-radius: 0px !important;
+  border: 1px solid transparent !important;
+  color: var(--font-color);
+}
+
+.nav-link:hover {
+  color: var(--font-color);
+  border-color: var(--font-color) !important;
+}
+
+.nav-link.active {
+  background-color: #fad12f !important;
+  color: #181a1c !important;
+}
+
+#uncontrolled-tab-example-tabpane-buy {
+  margin-top: 30px;
+}
+
+._input_23g6p_63 {
+  margin: 10px 0px;
+}
+
+._buttonSubmit_23g6p_49 {
+  margin: 10px 0px;
+}
+
+body {
+  color: #fad12f;
+  margin: 0px;
+  background-color: var(--bg-color);
+  color: var(--font-color);
+  min-height: 100vh;
+  font-family: "Raleway", sans-serif;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #0b0e11;
+    background-color: #ffffff;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    background-color: var(--bg-color);
+    color: var(--font-color);
+  }
+}
