@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/authContext";
 import GetAccountInfo from "../../services/getAccountInfo";
@@ -18,10 +19,10 @@ export default function AccountDetail() {
 
   const [accountDetails, setAccountDetails] = useState<AccountDetail>();
 
+  const [newUserPic , setNewUserPic] = useState<any>();
+
   useEffect(() => {
     let parsed = JSON.parse(currentBalance);
-
-    console.log(parsed);
 
     if (parsed.spotBalance !== null) {
       setSpotBalance(parsed.spotBalance);
@@ -38,7 +39,20 @@ export default function AccountDetail() {
 
   const changeAvatar = (e: any) => {
     e.preventDefault();
+
+    setNewUserPic(false)
+
+    let form = new FormData();
+
+    form.append("profilePicture" , newUserPic);
+
+    axios.patch(import.meta.env.VITE_API_URL + "/api/user/profile/picture",form, {
+      withCredentials: true,
+    }).then((res) => {
+      GetAccountInfo(setAccountDetails);
+    })
   };
+
 
   return (
     <>
@@ -54,8 +68,15 @@ export default function AccountDetail() {
           }
         ></img>
 
+          {newUserPic && <div>
+            <img src={URL.createObjectURL(newUserPic)} alt="" />
+            </div>}
+
+
         <form>
-          <input type="file"></input>
+          <input type="file" onChange={(e: any) => {
+            setNewUserPic(e.target.files[0])
+          }}></input>
           <button type="submit" onClick={changeAvatar}>
             Change avatar
           </button>

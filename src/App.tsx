@@ -9,12 +9,11 @@ import SpotDetails from "./pages/spotDetails/marketDetail";
 import FuturesDetail from "./pages/futuresDetails/futuresDetails";
 import AccountDetail from "./pages/accountDetail/accoutDetail";
 import Page404 from "./pages/404/404";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { AuthContext } from "./context/authContext";
-import Cookies from "universal-cookie";
 import axios from "axios";
-
-const cookies = new Cookies();
+import ProtectedRoute from "./protectedRoutes";
+import Loader from "./components/loader/loader";
 
 export const allRoutes = createBrowserRouter([
   {
@@ -28,7 +27,7 @@ export const allRoutes = createBrowserRouter([
 
       {
         path: "/accountDetail",
-        element: <AccountDetail></AccountDetail>,
+        element: <ProtectedRoute><AccountDetail></AccountDetail></ProtectedRoute>,
       },
 
       {
@@ -97,7 +96,9 @@ function App() {
         setUserInfo: setUserInfo,
       }}
     >
-      <RouterProvider router={allRoutes} />
+      <Suspense fallback={<Loader isOpen={true}></Loader>}>
+        <RouterProvider router={allRoutes} />
+      </Suspense>
     </AuthContext.Provider>
   );
 }

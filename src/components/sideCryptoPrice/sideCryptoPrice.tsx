@@ -53,7 +53,9 @@ export default function SideCryptoPrice({ symbol }: any) {
     n: 0, // Total number of trades
   });
 
-  const [show, setShow] = useState(false);
+  let modalBody;
+
+  const [show, setShow] = useState<boolean>(false);
 
   const [quantity, setQuantity] = useState(0);
 
@@ -85,12 +87,17 @@ export default function SideCryptoPrice({ symbol }: any) {
 
   const handleForm = (e: any) => {
     e.preventDefault();
+    e.stopPropagation();
 
     BuyCrypto(symbol, quantity, setCurrentBalance);
+
+    setShow(false)
+
   };
 
   const handleSell = (e: any) => {
     e.preventDefault();
+    e.stopPropagation();
 
     SellCrypto(symbol, sellQuantity, setCurrentBalance);
   };
@@ -114,20 +121,26 @@ export default function SideCryptoPrice({ symbol }: any) {
   }, [lastJsonMessage]);
 
   useEffect(() => {
-    let parsed = JSON.parse(currentBalance);
-    let current = parsed.currentBalance;
-    let newMax = formatNumber(parseFloat(current) / parseFloat(data.c));
-    setMaxQuantity(newMax);
+
+    if(auth) {
+      let parsed = JSON.parse(currentBalance);
+      let current = parsed.currentBalance;
+      let newMax = formatNumber(parseFloat(current) / parseFloat(data.c));
+      setMaxQuantity(newMax);
+    }
+
   }, [data.c]);
 
-  let modalBody;
-
   useEffect(() => {
-    let parsed = JSON.parse(currentBalance);
-    console.log(parsed);
-    if (parsed.spotBalance[symbol] != "undefined") {
-      setMaxSellQuantity(parseFloat(parsed.spotBalance[symbol]));
+
+    if(auth) {
+      let parsed = JSON.parse(currentBalance);
+      console.log(parsed);
+      if (parsed.spotBalance[symbol] != "undefined") {
+        setMaxSellQuantity(parseFloat(parsed.spotBalance[symbol]));
+      }
     }
+
   }, [currentBalance]);
 
   if (auth == true) {
@@ -162,9 +175,11 @@ export default function SideCryptoPrice({ symbol }: any) {
           ></input>
 
           <button
-            type="submit"
+            type="button"
             className={Class.button + " " + Class.buttonSubmit}
-            onClick={handleForm}
+            onClick={(e) => {
+              handleForm(e)
+            }}
           >
             Buy
           </button>
@@ -188,9 +203,11 @@ export default function SideCryptoPrice({ symbol }: any) {
           ></Form.Control>
 
           <button
-            type="submit"
+            type="button"
             className={Class.button + " " + Class.buttonSubmit}
-            onClick={handleSell}
+            onClick={(e) => {
+              handleSell(e)
+            }}
           >
             Sell
           </button>
