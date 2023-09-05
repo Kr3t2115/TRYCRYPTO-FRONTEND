@@ -14,7 +14,8 @@ import { AuthContext } from "./context/authContext";
 import axios from "axios";
 import ProtectedRoute from "./protectedRoutes";
 import Loader from "./components/loader/loader";
-
+import i18n from "i18next";
+import { initReactI18next, useTranslation } from "react-i18next";
 export const allRoutes = createBrowserRouter([
   {
     path: "/",
@@ -27,7 +28,11 @@ export const allRoutes = createBrowserRouter([
 
       {
         path: "/accountDetail",
-        element: <ProtectedRoute><AccountDetail></AccountDetail></ProtectedRoute>,
+        element: (
+          <ProtectedRoute>
+            <AccountDetail></AccountDetail>
+          </ProtectedRoute>
+        ),
       },
 
       {
@@ -61,12 +66,35 @@ export const allRoutes = createBrowserRouter([
   },
 ]);
 
+i18n.use(initReactI18next).init({
+  resources: {
+    en: {
+      translation: {
+        Strona_glowna: "Home",
+      },
+    },
+    pl: {
+      translation: {
+        Strona_glowna: "Strona główna",
+      },
+    },
+    de: {
+      translation: {
+        Strona_glowna: "Hauptseite",
+      },
+    },
+  },
+  lng: "",
+});
+
 function App() {
   const [logged, setLogged] = useState<true | false>(false);
 
   const [currentBalance, setCurrentBalance] = useState<Object>(
     JSON.stringify({})
   );
+
+  const { t, i18n } = useTranslation();
 
   const [userInfo, setUserInfo] = useState<Object>(JSON.stringify({}));
 
