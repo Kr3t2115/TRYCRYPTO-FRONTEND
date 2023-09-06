@@ -116,18 +116,18 @@ export default function SideCryptoPrice({ symbol }: any) {
     if (lastJsonMessage !== null) {
       setData(lastJsonMessage);
     }
-    console.log(lastJsonMessage)
   }, [lastJsonMessage]);
 
   useEffect(() => {
-
     if(auth) {
       let parsed = JSON.parse(currentBalance);
       let current = parsed.currentBalance;
       let newMax = formatNumber(parseFloat(current) / parseFloat(data.c));
       setMaxQuantity(newMax);
-    }
-
+      if (parsed.spotBalance[symbol] != "undefined") {
+        setMaxSellQuantity(parseFloat(parsed.spotBalance[symbol]));
+      }
+      }
   }, [data.c]);
 
   useEffect(() => {

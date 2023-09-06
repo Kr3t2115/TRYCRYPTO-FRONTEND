@@ -1,7 +1,11 @@
-import { useEffect, useState } from "react";
-import { Button } from "react-bootstrap";
+import { useContext, useEffect, useState } from "react";
 import Class from "./sideCryptoPrice.module.css";
 import useWebSocket from "react-use-websocket";
+import { Modal, Button, Form, Tab, Tabs } from "react-bootstrap";
+import { AuthContext } from "../../../context/authContext";
+import SellCrypto from "../../../services/sellCrypto";
+import BuyCrypto from "../../../services/buyCrypto";
+import { Link } from "react-router-dom";
 
 interface TickerInterface {
     e: string; // Event type
@@ -27,6 +31,9 @@ interface TickerInterface {
   
 export default function SideCryptoPrice({symbol}: any) {
  
+  const { currentBalance, auth, setCurrentBalance }: any =
+  useContext(AuthContext);
+  
     const [show, setShow] = useState<boolean>(false);
 
     const [data, setData] = useState<TickerInterface>({
@@ -49,7 +56,15 @@ export default function SideCryptoPrice({symbol}: any) {
         F: 0, // Last trade Id
         n: 0, // Total number of trades
       });
+    
+    const [action, setAction] = useState<string>("Buy");
+    const [quantity, setQuantity] = useState(0);
 
+    const [maxQuantity, setMaxQuantity] = useState(0);
+  
+    const [sellQuantity, setSellQuantity] = useState(0);
+  
+    const [maxSellQuantity, setMaxSellQuantity] = useState(0);
       
     let indexOfName = symbol?.search("USDT");
 
@@ -59,22 +74,127 @@ export default function SideCryptoPrice({symbol}: any) {
   
     let lower = symbol.toLowerCase();
 
+    let modalBody;
+
+    const handleClose = () => setShow(false);
+
+    const handleShow = () => setShow(true);
+
+    const changeQuantity = (event: any) => {
+      setQuantity(parseFloat(event.target.value));
+    };
+  
+    const changeSellQuantity = (event: any) => {
+      setSellQuantity(parseFloat(event.target.value));
+    };
     
-    const handleShow = () => {
-      setShow(true);
-    }
-    
-    const { lastJsonMessage , lastMessage } = useWebSocket<any>(
+  const handleForm = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    BuyCrypto(symbol, quantity, setCurrentBalance);
+    setShow(false)
+  };
+
+  const handleSell = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    SellCrypto(symbol, sellQuantity, setCurrentBalance);
+  };
+  
+    const { lastJsonMessage  } = useWebSocket<any>(
       `wss://fstream.binance.com/ws/${lower}@ticker`
     );
     
     useEffect(() => {
-      console.log(lastMessage)
-    }, [lastMessage])
+      if (lastJsonMessage !== null) {
+        setData(lastJsonMessage);
+      }
+    }, [lastJsonMessage]);
 
     useEffect(() => {
-      console.log(lastJsonMessage)
-    }, [lastJsonMessage])
+      if (auth == true) {
+        modalBody = (
+          <Tabs
+            defaultActiveKey="buy"
+            id="uncontrolled-tab-example"
+            onSelect={(e) => {
+              if (e == "buy") {
+                setAction("Buy");
+              } else if (e == "sell") {
+                setAction("Sell");
+              }
+            }}
+          >
+            <Tab eventKey="buy" title="Buy">
+              <input
+                type="range"
+                max={maxQuantity}
+                min={0}
+                value={quantity}
+                onChange={changeQuantity}
+                step={0.1}
+              />
+    
+              <input
+                type="number"
+                max={maxQuantity}
+                className={Class.input}
+                value={quantity}
+                onChange={changeQuantity}
+              ></input>
+    
+              <button
+                type="button"
+                className={Class.button + " " + Class.buttonSubmit}
+                onClick={(e) => {
+                  handleForm(e)
+                }}
+              >
+                Buy
+              </button>
+            </Tab>
+            <Tab eventKey="sell" title="Sell">
+              <input
+                type="range"
+                max={maxSellQuantity}
+                min={0}
+                value={sellQuantity}
+                onChange={changeSellQuantity}
+                step={0.1}
+              />
+    
+              <Form.Control
+                type="number"
+                max={maxSellQuantity}
+                className={Class.input}
+                value={sellQuantity}
+                onChange={changeSellQuantity}
+              ></Form.Control>
+    
+              <button
+                type="button"
+                className={Class.button + " " + Class.buttonSubmit}
+                onClick={(e) => {
+                  handleSell(e)
+                }}
+              >
+                Sell
+              </button>
+            </Tab>
+          </Tabs>
+        );
+      } else {
+        modalBody = (
+          <div className={Class.loginHrefCont}>
+            <Link to="/login" className={Class.loginHref}>
+              Login
+            </Link>
+          </div>
+        );
+      }
+    })
 
     return(
         <div>
@@ -122,6 +242,31 @@ export default function SideCryptoPrice({symbol}: any) {
         <Button onClick={handleShow} className={Class.button}>
           Buy/Sell {symbol}
         </Button>
+
+
+        <Modal
+        show={show}
+        onHide={handleClose}
+        backdrop="static"
+        keyboard={false}
+        className={Class.modal}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {action} {symbol}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{modalBody}</Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={handleClose}
+            className={Class.button}
+          >
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
         </div>
     )
 }

@@ -33,6 +33,7 @@ export default function TableBody({ data, limit, instrument }: any) {
             cryptoData={crypto}
             percentChange={percentChange}
             instrument={instrument}
+            key={data.name}
           ></TableRow>
         );
       })}

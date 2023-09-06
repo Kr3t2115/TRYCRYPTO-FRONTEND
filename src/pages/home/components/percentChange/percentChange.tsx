@@ -65,7 +65,7 @@ export default function PercentChange(props: any) {
               let imageLink = import.meta.env.VITE_API_URL + "/icon/" + imageName;
 
               return (
-                <SwiperSlide className={Class.MiniSwiperSlide}>
+                <SwiperSlide className={Class.MiniSwiperSlide} key={"swiper_"+crypto.name}>
                   <Link className={Class.swiperLink} to={"/markets/spot/" + crypto.name}>{crypto.name}</Link>
                   <div
                     style={{
