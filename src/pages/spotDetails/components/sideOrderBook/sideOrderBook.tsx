@@ -13,7 +13,7 @@ export default function SideOrderBook(props: any) {
     const wsLink =
       import.meta.env.VITE_WS_BINANCE_URL + symbol?.toLowerCase() + "@depth20";
   
-    const { sendJsonMessage, lastJsonMessage } = useWebSocket(import.meta.env.VITE_WS_BINANCE_URL + symbol?.toLowerCase() + "@depth20");
+    const { sendJsonMessage, lastJsonMessage }: any = useWebSocket(import.meta.env.VITE_WS_BINANCE_URL + symbol?.toLowerCase() + "@depth20");
   
   
     useEffect(() => {

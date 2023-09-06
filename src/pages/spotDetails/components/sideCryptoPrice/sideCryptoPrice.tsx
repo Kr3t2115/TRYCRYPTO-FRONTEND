@@ -2,10 +2,10 @@ import { useContext, useEffect, useState } from "react";
 import useWebSocket from "react-use-websocket";
 import Class from "./sideCryptoPrice.module.css";
 import { Modal, Button, Form, Tab, Tabs } from "react-bootstrap";
-import { AuthContext } from "../../context/authContext";
+import { AuthContext } from "../../../../context/authContext";
 import { Link } from "react-router-dom";
-import BuyCrypto from "../../services/buyCrypto";
-import SellCrypto from "../../services/sellCrypto";
+import BuyCrypto from "../../../../services/buyCrypto";
+import SellCrypto from "../../../../services/sellCrypto";
 
 interface TickerInterface {
   e: string; // Event type
@@ -90,9 +90,7 @@ export default function SideCryptoPrice({ symbol }: any) {
     e.stopPropagation();
 
     BuyCrypto(symbol, quantity, setCurrentBalance);
-
     setShow(false)
-
   };
 
   const handleSell = (e: any) => {
@@ -118,6 +116,7 @@ export default function SideCryptoPrice({ symbol }: any) {
     if (lastJsonMessage !== null) {
       setData(lastJsonMessage);
     }
+    console.log(lastJsonMessage)
   }, [lastJsonMessage]);
 
   useEffect(() => {

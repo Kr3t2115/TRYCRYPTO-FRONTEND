@@ -1,15 +1,14 @@
 import {  useParams } from "react-router-dom";
 import { AdvancedRealTimeChart } from "react-ts-tradingview-widgets";
 import Class from "./marketDetail.module.css";
-import SideOrderBook from "../../components/sideOrderBook/sideOrderBook";
-import SideCryptoPrice from "../../components/sideCryptoPrice/sideCryptoPrice";
+import SideOrderBook from "./components/sideOrderBook/sideOrderBook";
+import SideCryptoPrice from "./components/sideCryptoPrice/sideCryptoPrice";
 import { useContext } from "react";
 import { AuthContext } from "../../context/authContext";
 
 export default function SpotDetails() {
   let { symbol } = useParams();
 
-  
   return (
     <div className={Class.mainGrid}>
 
@@ -23,3 +22,4 @@ export default function SpotDetails() {
     </div>
   );
 }
+    

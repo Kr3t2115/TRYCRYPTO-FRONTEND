@@ -84,7 +84,7 @@ i18n.use(initReactI18next).init({
       },
     },
   },
-  lng: "",
+  lng: "pl",
 });
 
 function App() {

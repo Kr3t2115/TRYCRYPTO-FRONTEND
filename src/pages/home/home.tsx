@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Header from "../../components/header/header";
-import PercentChange from "../../components/percentChange/percentChange";
+import PercentChange from "./components/percentChange/percentChange";
 import Table from "../../components/table/table";
 import SectionHeader from "../../components/sectionHeader/sectionHeader";
 import useWebSocket, { ReadyState } from "react-use-websocket";
