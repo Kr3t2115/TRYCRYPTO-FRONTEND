@@ -64,6 +64,18 @@ export default function SideCryptoPrice({ symbol }: any) {
 
   const [maxSellQuantity, setMaxSellQuantity] = useState(0);
 
+  const [futuresData, setFuturesData] = useState({
+    buy: {
+      maxQuantity: 0,
+      quantity: 0,
+      leverage: 0,
+    },
+    sell: {
+      maxQuantity: 0,
+      quantity: 0,
+    }
+  });
+
   let indexOfName = symbol?.search("USDT");
 
   let imageName = symbol?.slice(0, indexOfName).toLowerCase();
@@ -179,6 +191,10 @@ export default function SideCryptoPrice({ symbol }: any) {
           >
             Sell
           </button>
+        </Tab>
+
+        <Tab eventKey="order" title="Order">
+            
         </Tab>
       </Tabs>
     );
