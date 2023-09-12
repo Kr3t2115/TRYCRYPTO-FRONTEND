@@ -1,12 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import Header from "../../components/header/header";
 import PercentChange from "./components/percentChange/percentChange";
 import Table from "../../components/table/table";
 import SectionHeader from "../../components/sectionHeader/sectionHeader";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import Footer from "../../components/footer/footer";
+import { PageContext } from "../../context/pageContext";
 
 export default function Home(props: any) {
+
+  const {error, setLoading} = useContext(PageContext);
+
   const [spotData, setSpotData] = useState([]);
 
   const [futuresData, setFuturesData] = useState([]);

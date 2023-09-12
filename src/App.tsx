@@ -16,6 +16,7 @@ import ProtectedRoute from "./protectedRoutes";
 import Loader from "./components/loader/loader";
 import i18n from "i18next";
 import { initReactI18next, useTranslation } from "react-i18next";
+import Layout  from "./components/Layout/Layout";
 export const allRoutes = createBrowserRouter([
   {
     path: "/",
@@ -71,16 +72,19 @@ i18n.use(initReactI18next).init({
     en: {
       translation: {
         Strona_glowna: "Home",
+        Zamknij: "Close",
       },
     },
     pl: {
       translation: {
         Strona_glowna: "Strona główna",
+        Zamknij: "Zamknij",
       },
     },
     de: {
       translation: {
         Strona_glowna: "Hauptseite",
+        Zamknij: "Schließen",
       },
     },
   },
@@ -93,9 +97,7 @@ function App() {
   const [currentBalance, setCurrentBalance] = useState<Object>(
     JSON.stringify({})
   );
-
-  const { t, i18n } = useTranslation();
-
+   
   const [userInfo, setUserInfo] = useState<Object>(JSON.stringify({}));
 
   useEffect(() => {
@@ -125,7 +127,9 @@ function App() {
       }}
     >
       <Suspense fallback={<Loader isOpen={true}></Loader>}>
-        <RouterProvider router={allRoutes} />
+        <Layout>
+          <RouterProvider router={allRoutes} />
+        </Layout>
       </Suspense>
     </AuthContext.Provider>
   );

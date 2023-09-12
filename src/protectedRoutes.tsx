@@ -2,7 +2,7 @@ import { useContext, useEffect } from "react";
 import { AuthContext } from "./context/authContext";
 import { useNavigate } from "react-router-dom";
 
-export default function ProtectedRoute({children}: any) {
+export default function ProtectedRoute({children}: {children :React.ReactNode}) {
 
     const { auth }: any = useContext(AuthContext);
 
@@ -15,6 +15,8 @@ export default function ProtectedRoute({children}: any) {
     }, [auth])
 
     return(
-        {...children}
+        <>
+        {children}
+        </>
     )
 }

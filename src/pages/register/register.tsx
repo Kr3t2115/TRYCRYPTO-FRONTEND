@@ -71,6 +71,7 @@ export default function Register() {
             initialValues={{
               firstname: "",
               lastname: "",
+              username: "",
               email: "",
               password: "",
             }}

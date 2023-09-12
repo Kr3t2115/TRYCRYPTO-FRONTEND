@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import useWebSocket from "react-use-websocket";
 import Class from "./sideCryptoPrice.module.css";
 import { Modal, Button, Form, Tab, Tabs } from "react-bootstrap";
@@ -26,6 +26,13 @@ interface TickerInterface {
   C: number; // Statistics close time
   F: number; // Last trade Id
   n: number; // Total number of trades
+}
+
+interface SpotDataInterface {
+  quantity: number,
+  maxQuantity: number,
+  maxSellQuantity: number,
+  sellQuantity: number,
 }
 
 export default function SideCryptoPrice({ symbol }: any) {
@@ -57,13 +64,12 @@ export default function SideCryptoPrice({ symbol }: any) {
 
   const [show, setShow] = useState<boolean>(false);
 
-  const [quantity, setQuantity] = useState(0);
-
-  const [maxQuantity, setMaxQuantity] = useState(0);
-
-  const [sellQuantity, setSellQuantity] = useState(0);
-
-  const [maxSellQuantity, setMaxSellQuantity] = useState(0);
+  const [spotData, setSpotData] =  useState<SpotDataInterface>({
+    maxQuantity: 0, 
+    maxSellQuantity: 0,
+    quantity: 0,
+    sellQuantity: 0,
+  });
 
   const [action, setAction] = useState<string>("Buy");
 
@@ -77,27 +83,33 @@ export default function SideCryptoPrice({ symbol }: any) {
 
   const handleShow = () => setShow(true);
 
-  const changeQuantity = (event: any) => {
-    setQuantity(parseFloat(event.target.value));
+  const changeQuantity = (event: React.ChangeEvent<HTMLInputElement>) => {
+    
+    let a = parseFloat(event.target.value);
+
+    setSpotData((prev) : SpotDataInterface => {
+        return {...prev, quantity: a}
+    });
   };
 
-  const changeSellQuantity = (event: any) => {
-    setSellQuantity(parseFloat(event.target.value));
-  };
+  const changeSellQuantity = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSpotData((prev) : any => {
+      return {...prev, sellQuantity: event.target.value}
+  });  };
 
-  const handleForm = (e: any) => {
+  const handleForm = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
-    BuyCrypto(symbol, quantity, setCurrentBalance);
+    BuyCrypto(symbol, spotData?.quantity, setCurrentBalance);
     setShow(false)
   };
 
-  const handleSell = (e: any) => {
+  const handleSell = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
-    SellCrypto(symbol, sellQuantity, setCurrentBalance);
+    SellCrypto(symbol, spotData?.sellQuantity, setCurrentBalance);
   };
 
   let indexOfName = symbol?.search("USDT");
@@ -123,23 +135,26 @@ export default function SideCryptoPrice({ symbol }: any) {
       let parsed = JSON.parse(currentBalance);
       let current = parsed.currentBalance;
       let newMax = formatNumber(parseFloat(current) / parseFloat(data.c));
-      setMaxQuantity(newMax);
+      setSpotData((prev): any => {
+        return {...prev, maxQuantity: newMax}
+      })
       if (parsed.spotBalance[symbol] != "undefined") {
-        setMaxSellQuantity(parseFloat(parsed.spotBalance[symbol]));
+
+        setSpotData((prev): any => {
+          return {...prev, maxSellQuantity: parsed.spotBalance[symbol]}
+        })
       }
       }
   }, [data.c]);
 
   useEffect(() => {
-
-    if(auth) {
+  if(auth) {
       let parsed = JSON.parse(currentBalance);
-      console.log(parsed);
       if (parsed.spotBalance[symbol] != "undefined") {
-        setMaxSellQuantity(parseFloat(parsed.spotBalance[symbol]));
-      }
+        setSpotData((prev): any => {
+          return {...prev, maxSellQuantity: parsed.spotBalance[symbol]}
+        })      }
     }
-
   }, [currentBalance]);
 
   if (auth == true) {
@@ -153,23 +168,26 @@ export default function SideCryptoPrice({ symbol }: any) {
           } else if (e == "sell") {
             setAction("Sell");
           }
+          else if(e == "order") {
+            setAction("Order");
+          }
         }}
       >
         <Tab eventKey="buy" title="Buy">
           <input
             type="range"
-            max={maxQuantity}
+            max={spotData.maxQuantity}
             min={0}
-            value={quantity}
+            value={spotData.quantity}
             onChange={changeQuantity}
             step={0.1}
           />
 
           <input
             type="number"
-            max={maxQuantity}
+            max={spotData.maxQuantity}
             className={Class.input}
-            value={quantity}
+            value={spotData.quantity}
             onChange={changeQuantity}
           ></input>
 
@@ -186,18 +204,18 @@ export default function SideCryptoPrice({ symbol }: any) {
         <Tab eventKey="sell" title="Sell">
           <input
             type="range"
-            max={maxSellQuantity}
+            max={spotData.maxSellQuantity}
             min={0}
-            value={sellQuantity}
+            value={spotData.sellQuantity}
             onChange={changeSellQuantity}
             step={0.1}
           />
 
           <Form.Control
             type="number"
-            max={maxSellQuantity}
+            max={spotData.maxSellQuantity}
             className={Class.input}
-            value={sellQuantity}
+            value={spotData.sellQuantity}
             onChange={changeSellQuantity}
           ></Form.Control>
 
@@ -210,6 +228,10 @@ export default function SideCryptoPrice({ symbol }: any) {
           >
             Sell
           </button>
+        </Tab>
+
+        <Tab eventKey="order" title="Order">
+adsasd
         </Tab>
       </Tabs>
     );
