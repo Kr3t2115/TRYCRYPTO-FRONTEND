@@ -33,6 +33,9 @@ interface SpotDataInterface {
   maxQuantity: number,
   maxSellQuantity: number,
   sellQuantity: number,
+  orderQuantity: number,
+  orderPrice: number,
+  orderMaxQuantity: number,
 }
 
 export default function SideCryptoPrice({ symbol }: any) {
@@ -64,11 +67,14 @@ export default function SideCryptoPrice({ symbol }: any) {
 
   const [show, setShow] = useState<boolean>(false);
 
-  const [spotData, setSpotData] =  useState<SpotDataInterface>({
-    maxQuantity: 0, 
+  const [spotData, setSpotData] = useState<SpotDataInterface>({
+    maxQuantity: 0,
     maxSellQuantity: 0,
     quantity: 0,
     sellQuantity: 0,
+    orderQuantity: 0,
+    orderPrice: 0,
+    orderMaxQuantity: 0
   });
 
   const [action, setAction] = useState<string>("Buy");
@@ -84,18 +90,33 @@ export default function SideCryptoPrice({ symbol }: any) {
   const handleShow = () => setShow(true);
 
   const changeQuantity = (event: React.ChangeEvent<HTMLInputElement>) => {
-    
+
     let a = parseFloat(event.target.value);
 
-    setSpotData((prev) : SpotDataInterface => {
-        return {...prev, quantity: a}
+    setSpotData((prev): SpotDataInterface => {
+      return { ...prev, quantity: a }
     });
   };
 
   const changeSellQuantity = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSpotData((prev) : any => {
-      return {...prev, sellQuantity: event.target.value}
-  });  };
+    setSpotData((prev): any => {
+      return { ...prev, sellQuantity: event.target.value }
+    });
+  };
+
+  const changeOrderPrice = (event :React.ChangeEvent<HTMLInputElement>) => {
+    setSpotData((prev): any => {
+      return {...prev, orderPrice: parseFloat(event.target.value)}
+    })
+
+    let parsed = JSON.parse(currentBalance);
+
+    let newMax = parseFloat(parsed.currentBalance) / spotData.orderPrice;
+
+    setSpotData((prev): any => {
+      return {...prev, orderMaxQuantity: newMax }
+    })
+  }
 
   const handleForm = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -131,29 +152,30 @@ export default function SideCryptoPrice({ symbol }: any) {
   }, [lastJsonMessage]);
 
   useEffect(() => {
-    if(auth) {
+    if (auth) {
       let parsed = JSON.parse(currentBalance);
       let current = parsed.currentBalance;
       let newMax = formatNumber(parseFloat(current) / parseFloat(data.c));
       setSpotData((prev): any => {
-        return {...prev, maxQuantity: newMax}
+        return { ...prev, maxQuantity: newMax }
       })
       if (parsed.spotBalance[symbol] != "undefined") {
 
         setSpotData((prev): any => {
-          return {...prev, maxSellQuantity: parsed.spotBalance[symbol]}
+          return { ...prev, maxSellQuantity: parsed.spotBalance[symbol] }
         })
       }
-      }
+    }
   }, [data.c]);
 
   useEffect(() => {
-  if(auth) {
+    if (auth) {
       let parsed = JSON.parse(currentBalance);
       if (parsed.spotBalance[symbol] != "undefined") {
         setSpotData((prev): any => {
-          return {...prev, maxSellQuantity: parsed.spotBalance[symbol]}
-        })      }
+          return { ...prev, maxSellQuantity: parsed.spotBalance[symbol] }
+        })
+      }
     }
   }, [currentBalance]);
 
@@ -168,7 +190,7 @@ export default function SideCryptoPrice({ symbol }: any) {
           } else if (e == "sell") {
             setAction("Sell");
           }
-          else if(e == "order") {
+          else if (e == "order") {
             setAction("Order");
           }
         }}
@@ -231,7 +253,23 @@ export default function SideCryptoPrice({ symbol }: any) {
         </Tab>
 
         <Tab eventKey="order" title="Order">
-adsasd
+          <Form.Control
+            type="number"
+            className={Class.input}
+            value={spotData.orderPrice}
+            onChange={changeOrderPrice}
+          ></Form.Control>
+
+            <Form.Control 
+            type="number"
+            className={Class.input}
+            value={spotData.orderQuantity}
+            max={spotData.orderMaxQuantity}
+            step={0.1}
+            >
+
+            </Form.Control>
+
         </Tab>
       </Tabs>
     );

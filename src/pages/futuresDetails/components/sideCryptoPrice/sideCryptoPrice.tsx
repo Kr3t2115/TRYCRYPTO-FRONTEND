@@ -2,9 +2,9 @@ import { useContext, useEffect, useState } from "react";
 import Class from "./sideCryptoPrice.module.css";
 import useWebSocket from "react-use-websocket";
 import { Modal, Button, Form, Tab, Tabs } from "react-bootstrap";
-import { AuthContext } from "../../../context/authContext";
-import SellCrypto from "../../../services/sellCrypto";
-import BuyCrypto from "../../../services/buyCrypto";
+import { AuthContext } from "../../../../context/authContext";
+import SellCrypto from "../../../../services/sellCrypto";
+import BuyCrypto from "../../../../services/buyCrypto";
 import { Link } from "react-router-dom";
 
 interface TickerInterface {

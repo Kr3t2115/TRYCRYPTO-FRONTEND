@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import useWebSocket from 'react-use-websocket';
 import Class from './sideOrderBook.module.css';
 
-export default function SideOrderBook({symbol}: {symbol: string|undefined}) {
+export default function SideOrderBook(props: any) {
+
+    let { symbol }= props;
 
     const [bids, setBids] = useState([]);
 
