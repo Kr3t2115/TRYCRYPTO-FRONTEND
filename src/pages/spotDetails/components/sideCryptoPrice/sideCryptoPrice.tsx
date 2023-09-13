@@ -29,13 +29,13 @@ interface TickerInterface {
 }
 
 interface SpotDataInterface {
-  quantity: number,
-  maxQuantity: number,
-  maxSellQuantity: number,
-  sellQuantity: number,
-  orderQuantity: number,
-  orderPrice: number,
-  orderMaxQuantity: number,
+  quantity: number;
+  maxQuantity: number;
+  maxSellQuantity: number;
+  sellQuantity: number;
+  orderQuantity: number;
+  orderPrice: number;
+  orderMaxQuantity: number;
 }
 
 export default function SideCryptoPrice({ symbol }: any) {
@@ -74,7 +74,7 @@ export default function SideCryptoPrice({ symbol }: any) {
     sellQuantity: 0,
     orderQuantity: 0,
     orderPrice: 0,
-    orderMaxQuantity: 0
+    orderMaxQuantity: 0,
   });
 
   const [action, setAction] = useState<string>("Buy");
@@ -90,40 +90,51 @@ export default function SideCryptoPrice({ symbol }: any) {
   const handleShow = () => setShow(true);
 
   const changeQuantity = (event: React.ChangeEvent<HTMLInputElement>) => {
-
     let a = parseFloat(event.target.value);
 
     setSpotData((prev): SpotDataInterface => {
-      return { ...prev, quantity: a }
+      return { ...prev, quantity: a };
     });
   };
 
   const changeSellQuantity = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSpotData((prev): any => {
-      return { ...prev, sellQuantity: event.target.value }
+      return { ...prev, sellQuantity: event.target.value };
     });
   };
 
-  const changeOrderPrice = (event :React.ChangeEvent<HTMLInputElement>) => {
+  const changeOrderPrice = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSpotData((prev): any => {
-      return {...prev, orderPrice: parseFloat(event.target.value)}
-    })
+      return { ...prev, orderPrice: parseFloat(event.target.value) };
+    });
 
     let parsed = JSON.parse(currentBalance);
 
-    let newMax = parseFloat(parsed.currentBalance) / spotData.orderPrice;
+    let newMax = formatNumber(
+      parseFloat(parsed.currentBalance) / parseFloat(event.target.value),
+      2
+    );
 
     setSpotData((prev): any => {
-      return {...prev, orderMaxQuantity: newMax }
-    })
-  }
+      return { ...prev, orderMaxQuantity: newMax };
+    });
+  };
+
+  const changeOrderQuantity = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSpotData((prev): any => {
+      return {
+        ...prev,
+        orderQuantity: parseFloat(event.target.value),
+      };
+    });
+  };
 
   const handleForm = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
     BuyCrypto(symbol, spotData?.quantity, setCurrentBalance);
-    setShow(false)
+    setShow(false);
   };
 
   const handleSell = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -157,13 +168,12 @@ export default function SideCryptoPrice({ symbol }: any) {
       let current = parsed.currentBalance;
       let newMax = formatNumber(parseFloat(current) / parseFloat(data.c));
       setSpotData((prev): any => {
-        return { ...prev, maxQuantity: newMax }
-      })
+        return { ...prev, maxQuantity: newMax };
+      });
       if (parsed.spotBalance[symbol] != "undefined") {
-
         setSpotData((prev): any => {
-          return { ...prev, maxSellQuantity: parsed.spotBalance[symbol] }
-        })
+          return { ...prev, maxSellQuantity: parsed.spotBalance[symbol] };
+        });
       }
     }
   }, [data.c]);
@@ -173,11 +183,15 @@ export default function SideCryptoPrice({ symbol }: any) {
       let parsed = JSON.parse(currentBalance);
       if (parsed.spotBalance[symbol] != "undefined") {
         setSpotData((prev): any => {
-          return { ...prev, maxSellQuantity: parsed.spotBalance[symbol] }
-        })
+          return { ...prev, maxSellQuantity: parsed.spotBalance[symbol] };
+        });
       }
     }
   }, [currentBalance]);
+
+  useEffect(() => {
+    console.log(spotData);
+  }, [spotData]);
 
   if (auth == true) {
     modalBody = (
@@ -189,8 +203,7 @@ export default function SideCryptoPrice({ symbol }: any) {
             setAction("Buy");
           } else if (e == "sell") {
             setAction("Sell");
-          }
-          else if (e == "order") {
+          } else if (e == "order") {
             setAction("Order");
           }
         }}
@@ -217,7 +230,7 @@ export default function SideCryptoPrice({ symbol }: any) {
             type="button"
             className={Class.button + " " + Class.buttonSubmit}
             onClick={(e) => {
-              handleForm(e)
+              handleForm(e);
             }}
           >
             Buy
@@ -245,7 +258,7 @@ export default function SideCryptoPrice({ symbol }: any) {
             type="button"
             className={Class.button + " " + Class.buttonSubmit}
             onClick={(e) => {
-              handleSell(e)
+              handleSell(e);
             }}
           >
             Sell
@@ -256,20 +269,29 @@ export default function SideCryptoPrice({ symbol }: any) {
           <Form.Control
             type="number"
             className={Class.input}
-            value={spotData.orderPrice}
+            value={spotData.orderPrice.toString()}
             onChange={changeOrderPrice}
+            min={0}
           ></Form.Control>
 
-            <Form.Control 
+          <input
+            type="range"
+            max={spotData.orderMaxQuantity}
+            min={0}
+            value={spotData.orderQuantity}
+            onChange={changeOrderQuantity}
+            step={0.1}
+          />
+
+          <Form.Control
             type="number"
             className={Class.input}
             value={spotData.orderQuantity}
+            min={0}
             max={spotData.orderMaxQuantity}
             step={0.1}
-            >
-
-            </Form.Control>
-
+            onChange={changeOrderQuantity}
+          ></Form.Control>
         </Tab>
       </Tabs>
     );
