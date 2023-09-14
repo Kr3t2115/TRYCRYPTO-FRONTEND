@@ -26,10 +26,6 @@ export default function SideOrderBook({
     }
   }, [lastJsonMessage]);
 
-  useEffect(() => {
-    console.log(asks);
-  }, [asks]);
-
   return (
     <div>
       <h1>{symbol} bids and asks</h1>
