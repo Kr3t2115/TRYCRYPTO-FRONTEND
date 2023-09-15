@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import BuyCrypto from "../../../../services/buyCrypto";
 import SellCrypto from "../../../../services/sellCrypto";
 import orderSpot from "../../../../services/orderSpot";
+import axios from "axios";
 
 interface TickerInterface {
   e: string; // Event type
@@ -112,12 +113,19 @@ export default function SideCryptoPrice({ symbol }: any) {
 
     let parsed = JSON.parse(currentBalance);
 
-    let newMax = parseFloat(parsed.currentBalance) / spotData.orderPrice;
+    let newMax = parseFloat(parsed.currentBalance) /  parseFloat(event.target.value);
 
     setSpotData((prev): any => {
       return {...prev, orderMaxQuantity: newMax }
     })
   }
+
+  const changeOrderQunatity = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSpotData((prev): any => {
+      return {...prev, orderQuantity: parseFloat(event.target.value)}
+    })
+  }
+
 
   const handleForm = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -138,7 +146,7 @@ export default function SideCryptoPrice({ symbol }: any) {
     e.preventDefault();
     e.stopPropagation();
 
-    orderSpot(symbol, spotData.orderQuantity, spotData.orderPrice)
+    orderSpot(symbol, spotData.orderQuantity, spotData.orderPrice);
   }
 
   let indexOfName = symbol?.search("USDT");
@@ -189,6 +197,13 @@ export default function SideCryptoPrice({ symbol }: any) {
     console.log(currentBalance)
 
   }, [currentBalance]);
+
+  useEffect(() => {
+    axios.get(import.meta.env.VITE_API_URL + "/api/spot/limit/orders", {withCredentials: true}).then((res) => {
+      console.log(res)
+    })
+  }, [])
+
 
   if (auth == true) {
     modalBody = (
@@ -277,9 +292,22 @@ export default function SideCryptoPrice({ symbol }: any) {
             value={spotData.orderQuantity}
             max={spotData.orderMaxQuantity}
             step={0.1}
+            onChange={changeOrderQunatity}
             ></Form.Control>
 
-<button type="button"             
+
+          <input
+            type="range"
+            max={spotData.orderMaxQuantity}
+            min={0}
+            value={spotData.orderQuantity}
+            step={0.1}
+            onChange={changeOrderQunatity}
+          />
+
+
+
+        <button type="button"             
             className={Class.button + " " + Class.buttonSubmit}
             onClick={handleOrder}>Add order</button>
         </Tab>

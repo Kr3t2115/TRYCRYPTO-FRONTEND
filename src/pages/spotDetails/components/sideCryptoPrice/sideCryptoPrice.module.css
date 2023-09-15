@@ -27,6 +27,7 @@ input[type="number"] {
   height: 50px;
   border-radius: 30px;
   margin: 20px 0px;
+  font-weight: 700;
 }
 
 .input {
@@ -58,6 +59,7 @@ input[type="range"] {
   -webkit-appearance: none;
   margin: 10px 0;
   width: 100%;
+  background-color: #181a1c;
 }
 input[type="range"]:focus {
   outline: none;
