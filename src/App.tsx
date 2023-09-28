@@ -1,116 +1,33 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { RouterProvider } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-import LoginPage from "./pages/login/login";
-import Register from "./pages/register/register";
-import Home from "./pages/home/home";
-import HomeLayout from "./pages/allLayouts/homeLayout/homeLayout";
-import Markets from "./pages/markets/markets";
-import SpotDetails from "./pages/spotDetails/marketDetail";
-import FuturesDetail from "./pages/futuresDetails/futuresDetails";
-import AccountDetail from "./pages/accountDetail/accoutDetail";
-import Page404 from "./pages/404/404";
 import { Suspense, useEffect, useState } from "react";
 import { AuthContext } from "./context/authContext";
-import axios from "axios";
-import ProtectedRoute from "./protectedRoutes";
 import Loader from "./components/loader/loader";
 import i18n from "i18next";
-import { initReactI18next, useTranslation } from "react-i18next";
-import Layout  from "./components/Layout/Layout";
-export const allRoutes = createBrowserRouter([
-  {
-    path: "/",
-    element: <HomeLayout></HomeLayout>,
-    children: [
-      {
-        path: "",
-        element: <Home></Home>,
-      },
-
-      {
-        path: "/accountDetail",
-        element: (
-          <ProtectedRoute>
-            <AccountDetail></AccountDetail>
-          </ProtectedRoute>
-        ),
-      },
-
-      {
-        path: "/markets",
-        element: <Markets></Markets>,
-      },
-
-      {
-        path: "/markets/spot/:symbol",
-        element: <SpotDetails></SpotDetails>,
-      },
-
-      {
-        path: "/markets/futures/:symbol",
-        element: <FuturesDetail></FuturesDetail>,
-      },
-    ],
-  },
-
-  {
-    path: "/login",
-    element: <LoginPage></LoginPage>,
-  },
-  {
-    path: "/register",
-    element: <Register></Register>,
-  },
-  {
-    path: "*",
-    element: <Page404></Page404>,
-  },
-]);
+import { initReactI18next } from "react-i18next";
+import Layout from "./Layout";
+import { allRoutes } from "./routes";
+import refreshToken from "./services/refreshToken";
+import { translation } from "./i18";
 
 i18n.use(initReactI18next).init({
-  resources: {
-    en: {
-      translation: {
-        Strona_glowna: "Home",
-        Zamknij: "Close",
-      },
-    },
-    pl: {
-      translation: {
-        Strona_glowna: "Strona główna",
-        Zamknij: "Zamknij",
-      },
-    },
-    de: {
-      translation: {
-        Strona_glowna: "Hauptseite",
-        Zamknij: "Schließen",
-      },
-    },
-  },
+  resources: translation,
   lng: "pl",
 });
 
 function App() {
-  const [logged, setLogged] = useState<true | false>(false);
+  const [logged, setLogged] = useState<boolean>(false);
 
   const [currentBalance, setCurrentBalance] = useState<Object>(
     JSON.stringify({})
   );
-   
+
   const [userInfo, setUserInfo] = useState<Object>(JSON.stringify({}));
 
   useEffect(() => {
     if (logged === true) {
       setInterval(() => {
-        axios
-          .get("https://api.trycrypto.pl/user/refresh/token", {
-            withCredentials: true,
-            headers: {
-              "Content-Type": "application/json",
-            },
-          })
-          .then((res) => console.log(res));
+        refreshToken();
       }, 240000);
     }
   }, [logged]);

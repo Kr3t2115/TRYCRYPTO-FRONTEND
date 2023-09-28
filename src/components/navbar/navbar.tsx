@@ -50,13 +50,13 @@ export default function Navbar() {
           <div className={`${Class.miniContainer}` + " col-lg"}>
             <div className={Class.nav}>
               <Link to="">
-                <span>{t("Strona_glowna")}</span>
+                <span>{t("Strona Główna")}</span>
               </Link>
               <Link to="markets">
-                <span>Markets</span>
+                <span>{t("Market")}</span>
               </Link>
               <Link to="">
-                <span>Ranking</span>
+                <span>{t("Ranking")}</span>
               </Link>
             </div>
           </div>
@@ -83,7 +83,7 @@ export default function Navbar() {
                 </Link>
 
                 <button onClick={handleLogout} className={Class.balanceButton}>
-                  Logout
+                  {t("Wyloguj się")}
                 </button>
               </div>
             </div>
@@ -91,11 +91,11 @@ export default function Navbar() {
             <div className={`${Class.miniContainer}` + " col-lg-3"}>
               <div className={Class.nav}>
                 <Link to="login">
-                  <span>Login</span>
+                  <span>{t("Zaloguj się")}</span>
                 </Link>
 
                 <Link to="register">
-                  <span>Register</span>
+                  <span>{t("Zarejestruj się")}</span>
                 </Link>
               </div>
             </div>
