@@ -1,14 +1,22 @@
 import axios from "axios";
 
-export default function GetWalletBalance(setCurrentBalance: any) {
-  axios
-    .get("https://api.trycrypto.pl/api/wallet/balance", {
+export default async function GetWalletBalance(setCurrentBalance: any) {
+  try {
+    const balance = await axios.get("https://api.trycrypto.pl/api/wallet/balance", {
       withCredentials: true,
-    })
-    .then((response) => {
-      setCurrentBalance(JSON.stringify(response.data));
-    })
-    .catch((error) => {
-      throw new Error(error);
     });
+    
+    const sportOrders = await axios.get("https://api.trycrypto.pl/api/spot/limit/orders", {withCredentials: true})
+
+    const futureOrders = await axios.get("https://api.trycrypto.pl/api/derivatives/limit/orders", {withCredentials: true})
+
+    let ostateczny  = {...balance.data, sportOrders: sportOrders.data ,futureOrders: futureOrders.data };
+    
+    setCurrentBalance(JSON.stringify(ostateczny));    
+
+  } catch (error: unknown) {
+    if(error instanceof Error) {
+      console.log(error)
+    }
+  }
 }

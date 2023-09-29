@@ -32,6 +32,12 @@ function App() {
     }
   }, [logged]);
 
+
+  useEffect(() => {
+    console.log(currentBalance)
+  }, [currentBalance])
+
+
   return (
     <AuthContext.Provider
       value={{
