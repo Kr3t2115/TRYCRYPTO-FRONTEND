@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import BuyCrypto from "../../../../services/buyCrypto";
 import SellCrypto from "../../../../services/sellCrypto";
 import orderSpot from "../../../../services/orderSpot";
-import sellSpotOrder from "../../../../services/sellSpotOrder"
+import sellSpotOrder from "../../../../services/sellSpotOrder";
 
 interface TickerInterface {
   e: string; // Event type
@@ -31,23 +31,23 @@ interface TickerInterface {
 }
 
 interface SpotDataInterface {
-  quantity: number,
-  maxQuantity: number,
-  maxSellQuantity: number,
-  sellQuantity: number,
-  orderQuantity: number,
-  orderPrice: number,
-  orderMaxQuantity: number,
-  sellOrderQuantity: number,
+  quantity: number;
+  maxQuantity: number;
+  maxSellQuantity: number;
+  sellQuantity: number;
+  orderQuantity: number;
+  orderPrice: number;
+  orderMaxQuantity: number;
+  sellOrderQuantity: number;
 }
 
 interface singleOrder {
-  id: number,
-  pair: string,
-  quantity: number,
-  price: number,
-  type: string,
-  userId: number
+  id: number;
+  pair: string;
+  quantity: number;
+  price: number;
+  type: string;
+  userId: number;
 }
 
 export default function SideCryptoPrice({ symbol }: any) {
@@ -87,10 +87,10 @@ export default function SideCryptoPrice({ symbol }: any) {
     orderQuantity: 0,
     orderPrice: 0,
     orderMaxQuantity: 0,
-    sellOrderQuantity: 0
+    sellOrderQuantity: 0,
   });
 
-  const [allOrders ,  setAllOrders] = useState<singleOrder[]>([]);
+  const [allOrders, setAllOrders] = useState<singleOrder[]>([]);
 
   const [action, setAction] = useState<string>("Buy");
 
@@ -105,46 +105,44 @@ export default function SideCryptoPrice({ symbol }: any) {
   const handleShow = () => setShow(true);
 
   const changeQuantity = (event: React.ChangeEvent<HTMLInputElement>) => {
-
-    let a = parseFloat(event.target.value);    
-
     setSpotData((prev): SpotDataInterface => {
-      return { ...prev, quantity: a }
+      return { ...prev, quantity: parseFloat(event.target.value) };
     });
   };
 
   const changeSellQuantity = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSpotData((prev): any => {
-      return { ...prev, sellQuantity: event.target.value }
+      return { ...prev, sellQuantity: event.target.value };
     });
   };
 
-  const changeOrderPrice = (event :React.ChangeEvent<HTMLInputElement>) => {
+  const changeOrderPrice = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSpotData((prev): any => {
-      return {...prev, orderPrice: parseFloat(event.target.value)}
-    })
+      return { ...prev, orderPrice: parseFloat(event.target.value) };
+    });
 
     let parsed = JSON.parse(currentBalance);
 
-    let newMax = parseFloat(parsed.currentBalance) /  parseFloat(event.target.value);
+    let newMax =
+      parseFloat(parsed.currentBalance) / parseFloat(event.target.value);
 
     setSpotData((prev): any => {
-      return {...prev, orderMaxQuantity: newMax }
-    })
-  }
+      return { ...prev, orderMaxQuantity: newMax };
+    });
+  };
 
   const changeOrderQunatity = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSpotData((prev): any => {
-      return {...prev, orderQuantity: parseFloat(event.target.value)}
-    })
-  }
+      return { ...prev, orderQuantity: parseFloat(event.target.value) };
+    });
+  };
 
   const handleForm = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
     BuyCrypto(symbol, spotData?.quantity, setCurrentBalance);
-    setShow(false)
+    setShow(false);
   };
 
   const handleSell = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -154,12 +152,12 @@ export default function SideCryptoPrice({ symbol }: any) {
     SellCrypto(symbol, spotData?.sellQuantity, setCurrentBalance);
   };
 
-  const handleOrder = (e:  React.MouseEvent<HTMLButtonElement>) => {
+  const handleOrder = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
     orderSpot(symbol, spotData.orderQuantity, spotData.orderPrice);
-  }
+  };
 
   let indexOfName = symbol?.search("USDT");
 
@@ -185,46 +183,45 @@ export default function SideCryptoPrice({ symbol }: any) {
       let current = parsed.currentBalance;
       let newMax = formatNumber(parseFloat(current) / parseFloat(data.c));
       setSpotData((prev): any => {
-        return { ...prev, maxQuantity: newMax }
-      })
+        return { ...prev, maxQuantity: newMax };
+      });
       if (parsed.spotBalance[symbol] != "undefined") {
-
         setSpotData((prev): any => {
-          return { ...prev, maxSellQuantity: parsed.spotBalance[symbol] }
-        })
+          return { ...prev, maxSellQuantity: parsed.spotBalance[symbol] };
+        });
       }
     }
   }, [data.c]);
-
 
   useEffect(() => {
     if (auth) {
       let parsed = JSON.parse(currentBalance);
       if (parsed.spotBalance[symbol] != "undefined") {
         setSpotData((prev): any => {
-          return { ...prev, maxSellQuantity: parsed.spotBalance[symbol] }
-        })
+          return { ...prev, maxSellQuantity: parsed.spotBalance[symbol] };
+        });
       }
 
-      parsed.spotOrders.map((e : singleOrder) => {
-        let b = allOrders.some((order) => {return order.id === e.id})
-        if(e.pair === symbol && !b) {
+      parsed.spotOrders.map((e: singleOrder) => {
+        let b = allOrders.some((order) => {
+          return order.id === e.id;
+        });
+        if (e.pair === symbol && !b) {
           setAllOrders((prev) => {
             return [...prev, e];
-          })
+          });
         }
-      })
+      });
     }
   }, [currentBalance]);
 
   useEffect(() => {
-    console.log(allOrders)
-  }, [allOrders])
+    console.log(allOrders);
+  }, [allOrders]);
 
   useEffect(() => {
-    console.log(action)
-  }, [action])
-
+    console.log(action);
+  }, [action]);
 
   if (auth == true) {
     modalBody = (
@@ -236,8 +233,7 @@ export default function SideCryptoPrice({ symbol }: any) {
             setAction("Buy");
           } else if (e == "sell") {
             setAction("Sell");
-          }
-          else if (e == "order") {
+          } else if (e == "order") {
             setAction("Order");
           }
         }}
@@ -264,7 +260,7 @@ export default function SideCryptoPrice({ symbol }: any) {
             type="button"
             className={Class.button + " " + Class.buttonSubmit}
             onClick={(e) => {
-              handleForm(e)
+              handleForm(e);
             }}
           >
             Buy
@@ -292,7 +288,7 @@ export default function SideCryptoPrice({ symbol }: any) {
             type="button"
             className={Class.button + " " + Class.buttonSubmit}
             onClick={(e) => {
-              handleSell(e)
+              handleSell(e);
             }}
           >
             Sell
@@ -307,15 +303,14 @@ export default function SideCryptoPrice({ symbol }: any) {
             onChange={changeOrderPrice}
           ></Form.Control>
 
-            <Form.Control 
+          <Form.Control
             type="number"
             className={Class.input}
             value={spotData.orderQuantity}
             max={spotData.orderMaxQuantity}
             step={0.1}
             onChange={changeOrderQunatity}
-            ></Form.Control>
-
+          ></Form.Control>
 
           <input
             type="range"
@@ -325,28 +320,64 @@ export default function SideCryptoPrice({ symbol }: any) {
             step={0.1}
             onChange={changeOrderQunatity}
           />
-        <button type="button"             
+          <button
+            type="button"
             className={Class.button + " " + Class.buttonSubmit}
-            onClick={handleOrder}>Add order</button>
+            onClick={handleOrder}
+          >
+            Add order
+          </button>
 
-          {allOrders && <div>
-            <ul>
-              {allOrders.map((e) => {
-                return <li><span>{e.quantity} * {e.price}</span> <div><span>Sell quantity: {spotData.sellOrderQuantity}</span><input onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
-                  {setSpotData((prev) => {
-                  return {...prev, sellOrderQuantity: parseFloat(e.target.value)}
-                })}} type="range" min="0" max={e.quantity} step="0.1"></input></div> <button onClick={() => {
-                  sellSpotOrder({quantity: spotData.sellOrderQuantity, pair: symbol}, setCurrentBalance)
-                  setSpotData((prev) => {
-                    return {...prev, sellOrderQuantity: 0}
-                  })
-                }}>Sell</button></li>
-              })}
-            </ul>
-          </div>
-          }
-
-
+          {allOrders && (
+            <div>
+              <ul>
+                {allOrders.map((e) => {
+                  return (
+                    <li>
+                      <span>
+                        {e.quantity} * {e.price}
+                      </span>{" "}
+                      <div>
+                        <span>Sell quantity: {spotData.sellOrderQuantity}</span>
+                        <input
+                          onChange={(
+                            e: React.ChangeEvent<HTMLInputElement>
+                          ) => {
+                            setSpotData((prev) => {
+                              return {
+                                ...prev,
+                                sellOrderQuantity: parseFloat(e.target.value),
+                              };
+                            });
+                          }}
+                          type="range"
+                          min="0"
+                          max={e.quantity}
+                          step="0.1"
+                        ></input>
+                      </div>{" "}
+                      <button
+                        onClick={() => {
+                          sellSpotOrder(
+                            {
+                              quantity: spotData.sellOrderQuantity,
+                              pair: symbol,
+                            },
+                            setCurrentBalance
+                          );
+                          setSpotData((prev) => {
+                            return { ...prev, sellOrderQuantity: 0 };
+                          });
+                        }}
+                      >
+                        Sell
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
         </Tab>
       </Tabs>
     );
