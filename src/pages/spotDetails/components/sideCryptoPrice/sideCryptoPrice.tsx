@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import BuyCrypto from "../../../../services/buyCrypto";
 import SellCrypto from "../../../../services/sellCrypto";
 import orderSpot from "../../../../services/orderSpot";
-import axios from "axios";
+import sellSpotOrder from "../../../../services/sellSpotOrder"
 
 interface TickerInterface {
   e: string; // Event type
@@ -38,6 +38,16 @@ interface SpotDataInterface {
   orderQuantity: number,
   orderPrice: number,
   orderMaxQuantity: number,
+  sellOrderQuantity: number,
+}
+
+interface singleOrder {
+  id: number,
+  pair: string,
+  quantity: number,
+  price: number,
+  type: string,
+  userId: number
 }
 
 export default function SideCryptoPrice({ symbol }: any) {
@@ -76,8 +86,11 @@ export default function SideCryptoPrice({ symbol }: any) {
     sellQuantity: 0,
     orderQuantity: 0,
     orderPrice: 0,
-    orderMaxQuantity: 0
+    orderMaxQuantity: 0,
+    sellOrderQuantity: 0
   });
+
+  const [allOrders ,  setAllOrders] = useState<singleOrder[]>([]);
 
   const [action, setAction] = useState<string>("Buy");
 
@@ -125,7 +138,6 @@ export default function SideCryptoPrice({ symbol }: any) {
       return {...prev, orderQuantity: parseFloat(event.target.value)}
     })
   }
-
 
   const handleForm = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -193,16 +205,25 @@ export default function SideCryptoPrice({ symbol }: any) {
           return { ...prev, maxSellQuantity: parsed.spotBalance[symbol] }
         })
       }
-    }
-    console.log(currentBalance)
 
+      parsed.spotOrders.map((e : singleOrder) => {
+        let b = allOrders.some((order) => {return order.id === e.id})
+        if(e.pair === symbol && !b) {
+          setAllOrders((prev) => {
+            return [...prev, e];
+          })
+        }
+      })
+    }
   }, [currentBalance]);
 
   useEffect(() => {
-    axios.get(import.meta.env.VITE_API_URL + "/api/spot/limit/orders", {withCredentials: true}).then((res) => {
-      console.log(res)
-    })
-  }, [])
+    console.log(allOrders)
+  }, [allOrders])
+
+  useEffect(() => {
+    console.log(action)
+  }, [action])
 
 
   if (auth == true) {
@@ -304,12 +325,28 @@ export default function SideCryptoPrice({ symbol }: any) {
             step={0.1}
             onChange={changeOrderQunatity}
           />
-
-
-
         <button type="button"             
             className={Class.button + " " + Class.buttonSubmit}
             onClick={handleOrder}>Add order</button>
+
+          {allOrders && <div>
+            <ul>
+              {allOrders.map((e) => {
+                return <li><span>{e.quantity} * {e.price}</span> <div><span>Sell quantity: {spotData.sellOrderQuantity}</span><input onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                  {setSpotData((prev) => {
+                  return {...prev, sellOrderQuantity: parseFloat(e.target.value)}
+                })}} type="range" min="0" max={e.quantity} step="0.1"></input></div> <button onClick={() => {
+                  sellSpotOrder({quantity: spotData.sellOrderQuantity, pair: symbol}, setCurrentBalance)
+                  setSpotData((prev) => {
+                    return {...prev, sellOrderQuantity: 0}
+                  })
+                }}>Sell</button></li>
+              })}
+            </ul>
+          </div>
+          }
+
+
         </Tab>
       </Tabs>
     );

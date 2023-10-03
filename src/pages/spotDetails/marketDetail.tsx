@@ -28,6 +28,7 @@ export default function SpotDetails() {
       <div className={Class.orderBook}>
         <SideOrderBook symbol={symbol}></SideOrderBook>
       </div>
+      
     </div>
   );
 }

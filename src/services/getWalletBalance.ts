@@ -10,7 +10,7 @@ export default async function GetWalletBalance(setCurrentBalance: any) {
 
     const futureOrders = await axios.get("https://api.trycrypto.pl/api/derivatives/limit/orders", {withCredentials: true})
 
-    let ostateczny  = {...balance.data, sportOrders: sportOrders.data ,futureOrders: futureOrders.data };
+    let ostateczny  = {...balance.data, spotOrders: sportOrders.data ,futureOrders: futureOrders.data };
     
     setCurrentBalance(JSON.stringify(ostateczny));    
 
