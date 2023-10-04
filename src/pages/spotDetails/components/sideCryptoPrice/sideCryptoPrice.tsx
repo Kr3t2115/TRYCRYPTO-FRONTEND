@@ -39,6 +39,7 @@ interface SpotDataInterface {
   orderPrice: number;
   orderMaxQuantity: number;
   sellOrderQuantity: number;
+  sellOrderPrice: number,
 }
 
 interface singleOrder {
@@ -88,6 +89,7 @@ export default function SideCryptoPrice({ symbol }: any) {
     orderPrice: 0,
     orderMaxQuantity: 0,
     sellOrderQuantity: 0,
+    sellOrderPrice: 0,
   });
 
   const [allOrders, setAllOrders] = useState<singleOrder[]>([]);
@@ -355,12 +357,24 @@ export default function SideCryptoPrice({ symbol }: any) {
                           max={e.quantity}
                           step="0.1"
                         ></input>
+                        {/* sellOrderPrice */}
+                        <input type="text" onChange={(
+                            e: React.ChangeEvent<HTMLInputElement>
+                          ) => {
+                            setSpotData((prev) => {
+                              return {
+                                ...prev,
+                                sellOrderPrice: parseFloat(e.target.value),
+                              };
+                            });
+                          }}></input>
                       </div>{" "}
                       <button
                         onClick={() => {
                           sellSpotOrder(
                             {
                               quantity: spotData.sellOrderQuantity,
+                              price: spotData.sellOrderPrice,
                               pair: symbol,
                             },
                             setCurrentBalance
