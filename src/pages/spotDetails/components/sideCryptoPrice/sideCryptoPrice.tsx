@@ -92,7 +92,7 @@ export default function SideCryptoPrice({ symbol }: any) {
     sellOrderPrice: 0,
   });
 
-  const [allOrders, setAllOrders] = useState<singleOrder[] | null>([]);
+  const [allOrders, setAllOrders] = useState<singleOrder[]>([]);
 
   const [action, setAction] = useState<string>("Buy");
 
@@ -196,7 +196,6 @@ export default function SideCryptoPrice({ symbol }: any) {
   }, [data.c]);
 
   useEffect(() => {
-    console.log("Wykonuje uwu")
     if (auth) {
       let parsed = JSON.parse(currentBalance);
       if (parsed.spotBalance[symbol] != "undefined") {
@@ -204,6 +203,11 @@ export default function SideCryptoPrice({ symbol }: any) {
           return { ...prev, maxSellQuantity: parsed.spotBalance[symbol] };
         });
       }
+
+      if(parsed.spotOrders.length == 0) {
+        setAllOrders([])
+      }
+
 
       parsed.spotOrders.map((e: singleOrder) => {
         let b = allOrders?.some((order) => {
@@ -323,7 +327,7 @@ export default function SideCryptoPrice({ symbol }: any) {
             Add order
           </button>
 
-          {allOrders && (
+          {allOrders?.length > 0 && (
             <div>
 
               <div>All opened spot orders</div>
@@ -334,42 +338,13 @@ export default function SideCryptoPrice({ symbol }: any) {
                       <span>
                         {e.quantity} * {e.price}
                       </span>{" "}
-                      <div>
-                        <span>Sell quantity: {spotData.sellOrderQuantity}</span>
-                        <input
-                          onChange={(
-                            e: React.ChangeEvent<HTMLInputElement>
-                          ) => {
-                            setSpotData((prev) => {
-                              return {
-                                ...prev,
-                                sellOrderQuantity: parseFloat(e.target.value),
-                              };
-                            });
-                          }}
-                          type="range"
-                          min="0"
-                          max={e.quantity}
-                          step="0.1"
-                        ></input>
-                        {/* sellOrderPrice */}
-                        <input type="text" onChange={(
-                            e: React.ChangeEvent<HTMLInputElement>
-                          ) => {
-                            setSpotData((prev) => {
-                              return {
-                                ...prev,
-                                sellOrderPrice: parseFloat(e.target.value),
-                              };
-                            });
-                          }}></input>
-                      </div>
                       <button
+                      className="btn btn-danger px-2 py-1"
                         onClick={() => {
                           sellSpotOrder(e.id, setCurrentBalance);
                         }}
                       >
-                        Close
+                        ✕
                       </button>
                     </li>
                   );
