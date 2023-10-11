@@ -92,7 +92,7 @@ export default function SideCryptoPrice({ symbol }: any) {
     sellOrderPrice: 0,
   });
 
-  const [allOrders, setAllOrders] = useState<singleOrder[]>([]);
+  const [allOrders, setAllOrders] = useState<singleOrder[] | null>([]);
 
   const [action, setAction] = useState<string>("Buy");
 
@@ -158,7 +158,7 @@ export default function SideCryptoPrice({ symbol }: any) {
     e.preventDefault();
     e.stopPropagation();
 
-    orderSpot(symbol, spotData.orderQuantity, spotData.orderPrice);
+    orderSpot(symbol, spotData.orderQuantity, spotData.orderPrice, setCurrentBalance);
   };
 
   let indexOfName = symbol?.search("USDT");
@@ -196,6 +196,7 @@ export default function SideCryptoPrice({ symbol }: any) {
   }, [data.c]);
 
   useEffect(() => {
+    console.log("Wykonuje uwu")
     if (auth) {
       let parsed = JSON.parse(currentBalance);
       if (parsed.spotBalance[symbol] != "undefined") {
@@ -205,25 +206,17 @@ export default function SideCryptoPrice({ symbol }: any) {
       }
 
       parsed.spotOrders.map((e: singleOrder) => {
-        let b = allOrders.some((order) => {
+        let b = allOrders?.some((order) => {
           return order.id === e.id;
         });
         if (e.pair === symbol && !b) {
-          setAllOrders((prev) => {
+          setAllOrders((prev: any) => {
             return [...prev, e];
           });
         }
       });
     }
   }, [currentBalance]);
-
-  useEffect(() => {
-    console.log(allOrders);
-  }, [allOrders]);
-
-  useEffect(() => {
-    console.log(action);
-  }, [action]);
 
   if (auth == true) {
     modalBody = (
@@ -332,6 +325,8 @@ export default function SideCryptoPrice({ symbol }: any) {
 
           {allOrders && (
             <div>
+
+              <div>All opened spot orders</div>
               <ul>
                 {allOrders.map((e) => {
                   return (
@@ -368,23 +363,13 @@ export default function SideCryptoPrice({ symbol }: any) {
                               };
                             });
                           }}></input>
-                      </div>{" "}
+                      </div>
                       <button
                         onClick={() => {
-                          sellSpotOrder(
-                            {
-                              quantity: spotData.sellOrderQuantity,
-                              price: spotData.sellOrderPrice,
-                              pair: symbol,
-                            },
-                            setCurrentBalance
-                          );
-                          setSpotData((prev) => {
-                            return { ...prev, sellOrderQuantity: 0 };
-                          });
+                          sellSpotOrder(e.id, setCurrentBalance);
                         }}
                       >
-                        Sell
+                        Close
                       </button>
                     </li>
                   );

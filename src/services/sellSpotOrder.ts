@@ -1,22 +1,16 @@
 import GetWalletBalance from "./getWalletBalance";
 import axios from "axios";
 
-interface selledData {
-  pair: string;
-  quantity: number;
-  price: number
-}
+
 
 export default async function sellSpotOrder(
-  selledData: selledData,
+  closedId: number,
   setCurrentBalance: any
 ) {
   try {
-    console.log(selledData);
 
-    const res = await axios.post(
-      import.meta.env.VITE_API_URL + "/api/spot/limit/sell/" + selledData.pair,
-      { quantity: selledData.quantity, price: selledData.price },
+    const res = await axios.get(
+      import.meta.env.VITE_API_URL + "/api/spot/limit/close/" + closedId,
       { withCredentials: true }
     );
 
