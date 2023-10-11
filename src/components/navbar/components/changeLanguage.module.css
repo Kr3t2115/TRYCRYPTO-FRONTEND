@@ -1,0 +1,25 @@
+.changeLanguageBox {
+  width: 130px;
+  height: 35px;
+  border-radius: 15px;
+  z-index: 1335;
+  background-color: black;
+  color: var(--font-color);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  outline: 0px;
+  padding: 0px 0px 0px 14px;
+  font-family: "Raleway", sans-serif;
+  font-weight: 600;
+}
+
+.changeLanguageBox option {
+  padding: 14px 0px 0px 0px;
+  border: none;
+}

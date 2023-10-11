@@ -1,0 +1,141 @@
+.navigation {
+  font-weight: 600;
+}
+
+.logo {
+  width: 100%;
+  aspect-ratio: 3/2;
+  object-fit: contain;
+  height: 50px;
+}
+
+.miniContainer {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.miniContainer img {
+  width: 100%;
+}
+
+.loggedCont {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}
+
+.nav {
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+.nav a {
+  position: relative;
+  text-decoration: none;
+  color: #fff;
+  padding: 0.4rem;
+  font-family: "Raleway", sans-serif;
+}
+.nav a:hover {
+  overflow: hidden;
+  background: linear-gradient(
+    to right,
+    black,
+    var(--font-color) 50%,
+    var(--font-color) 50%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 100%;
+  background-position: 100%;
+  transition: background-position 500ms ease;
+  text-decoration: none;
+}
+.nav a::before {
+  content: "";
+  position: absolute;
+  width: 0%;
+  height: 1px;
+  left: 50%;
+  bottom: 0px;
+  background-color: var(--font-color);
+  opacity: 0;
+  transition: 0.4s;
+}
+.nav a::after {
+  content: "";
+  position: absolute;
+  width: 0%;
+  height: 1px;
+  right: 50%;
+  bottom: 0px;
+  background-color: var(--font-color);
+  opacity: 0;
+  transition: 0.4s;
+}
+.nav a:hover::before {
+  width: 50%;
+  opacity: 1;
+}
+.nav a:hover::after {
+  width: 50%;
+  opacity: 1;
+}
+
+.miniContainerIcons {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+}
+.miniContainerIcons a {
+  background-color: transparent;
+  color: #fff;
+  width: 30px;
+  height: 100%;
+  border: none;
+}
+.miniContainerIcons a svg {
+  width: 32px;
+  height: 32px;
+  aspect-ratio: 16/9;
+  object-fit: contain;
+}
+.miniContainerIcons a:hover svg {
+  fill: var(--font-color);
+  transition: 0.9s;
+}
+
+.balance {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 10px;
+}
+
+.balanceLink {
+  color: var(--font-color);
+  fill: var(--font-color);
+  text-decoration: none;
+}
+
+.balanceButton {
+  border-radius: 30px;
+  padding: 10px 25px;
+  background-color: var(--font-color);
+  color: var(--bg-color);
+  border: 2px solid transparent;
+  transition: 0.5s;
+  font-weight: 700;
+}
+.balanceButton:hover {
+  background-color: var(--bg-color);
+  color: var(--font-color);
+  border: 2px solid var(--font-color);
+}

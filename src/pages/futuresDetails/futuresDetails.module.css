@@ -1,0 +1,18 @@
+.mainGrid {
+  width: 100%;
+  min-height: 70vh;
+  display: grid;
+  grid-template-columns: 25% auto 25%;
+  grid-template-areas: "buycrypto chart orderBook";
+}
+
+.orderBook {
+  grid-area: orderBook;
+}
+
+.chart {
+  grid-area: chart;
+}
+.buycrypto {
+  grid-area: buycrypto;
+}

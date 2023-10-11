@@ -1,0 +1,55 @@
+1. Historia spota 
+
+2. Futures kupowanie dziwgnia huje muje
+
+3. Kod aktywacyjny (tu będzie kongo) 
+
+Futures kupowanie
+
+LINK: /api/derivatives/market/open/{pair}
+
+Pair (nazwa) w urlu
+W przypadku type: "SHORT" , stopLoss musi być wyższy od ceny zakupu , a takeProfit musi być niższy od ceny zakupu 
+{
+  "quantity": "number", //Ilosc
+  "type": "string", //Typ long albo short
+  "takeProfit": "number", // Opcjonalne , tam gdzie chcesz zamknąć , musi być większe od ceny zakupu
+  "stopLoss": "number", // Opjonalne , tam gdzie chcesz zamknąć , niższe niż cena zakupu, nie niższe niż cena likwidacji
+  "leverage": "number" // Opcjonalne , dźwignia większe od 1 mniejsze od 50
+}
+
+
+
+Futures zamykanie 
+
+LINK: api/derivatives/market/close/{id}
+
+Id (dangeo zamowienia) w urlu 
+
+{
+    quantity: number // Ilosc
+}
+
+
+Futures order kupowanie 
+
+LINK: /api/derivatives/limit/open/{pair}
+
+Pair (nazwa) w urlu
+
+{
+  "quantity": "number",  //Ilosc 
+  "price": "number", // Cena za która chcemy otworzyc
+  "type": "string", //Typ long albo short 
+  "takeProfit": "number", // Opcjonalne , tam gdzie chcesz zamknąć , musi być większe od ceny price
+  "stopLoss": "number", // Opjonalne , tam gdzie chcesz zamknąć , niższe niż cena price, nie niższe niż cena likwidacji
+  "leverage": "number" // Opcjonalne , dźwignia większe od 1 mniejsze od 50
+}
+
+
+Futures order zamykanie
+
+LINK: /api/derivatives/limit/close/{id}
+
+Id (dangeo zamowienia) w urlu 
+
