@@ -7,6 +7,8 @@ import SellCrypto from "../../../../services/sellCrypto";
 import BuyCrypto from "../../../../services/buyCrypto";
 import { Link } from "react-router-dom";
 
+
+
 interface TickerInterface {
   e: string; // Event type
   E: number; // Event time
@@ -28,7 +30,24 @@ interface TickerInterface {
   n: number; // Total number of trades
 }
 
-export default function SideCryptoPrice({ symbol }: any) {
+type FutureTypes = {
+  buy: {
+    maxQuantity: number,
+    quantity: number,
+    leverage: number,
+    type: "SHORT" | "LONG"
+  }, 
+  sell: {
+    maxQuantity: number,
+    quantity: number,
+  },
+  order: {
+    buyQuantity: number,
+  }
+}
+
+
+export default function SideCryptoPrice({ symbol }: {symbol: string}) {
   const { currentBalance, auth, setCurrentBalance }: any =
     useContext(AuthContext);
 
@@ -64,15 +83,19 @@ export default function SideCryptoPrice({ symbol }: any) {
 
   const [maxSellQuantity, setMaxSellQuantity] = useState(0);
 
-  const [futuresData, setFuturesData] = useState({
+  const [futuresData, setFuturesData] = useState<FutureTypes>({
     buy: {
       maxQuantity: 0,
       quantity: 0,
       leverage: 0,
+      type: "SHORT"
     },
     sell: {
       maxQuantity: 0,
       quantity: 0,
+    },
+    order: {
+      buyQuantity: 0,
     }
   });
 
@@ -137,6 +160,7 @@ export default function SideCryptoPrice({ symbol }: any) {
         }}
       >
         <Tab eventKey="buy" title="Buy">
+          <label></label>
           <input
             type="range"
             max={maxQuantity}
@@ -152,6 +176,21 @@ export default function SideCryptoPrice({ symbol }: any) {
             className={Class.input}
             value={quantity}
             onChange={changeQuantity}
+            step={0.1}
+          ></input>
+
+
+          <select>
+            <option value="SHORT">SHORT</option>
+            <option value="LONG">LONG</option>
+          </select>
+
+          <input
+            type="number"
+            max={maxQuantity}
+            className={Class.input}
+            value={quantity}
+            // onChange={}
           ></input>
 
           <button

@@ -8,6 +8,8 @@ import BuyCrypto from "../../../../services/buyCrypto";
 import SellCrypto from "../../../../services/sellCrypto";
 import orderSpot from "../../../../services/orderSpot";
 import sellSpotOrder from "../../../../services/sellSpotOrder";
+import type {AuthType}  from "../../../../context/authContext"
+
 
 interface TickerInterface {
   e: string; // Event type
@@ -51,8 +53,8 @@ interface singleOrder {
   userId: number;
 }
 
-export default function SideCryptoPrice({ symbol }: any) {
-  const { currentBalance, auth, setCurrentBalance }: any =
+export default function SideCryptoPrice({ symbol }: {symbol: string}) {
+  const { currentBalance, auth, setCurrentBalance }: AuthType =
     useContext(AuthContext);
 
   const [data, setData] = useState<TickerInterface>({
@@ -113,13 +115,13 @@ export default function SideCryptoPrice({ symbol }: any) {
   };
 
   const changeSellQuantity = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSpotData((prev): any => {
-      return { ...prev, sellQuantity: event.target.value };
+    setSpotData((prev): SpotDataInterface => {
+      return { ...prev, sellQuantity: parseFloat(event.target.value)};
     });
   };
 
   const changeOrderPrice = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSpotData((prev): any => {
+    setSpotData((prev): SpotDataInterface => {
       return { ...prev, orderPrice: parseFloat(event.target.value) };
     });
 
@@ -128,13 +130,13 @@ export default function SideCryptoPrice({ symbol }: any) {
     let newMax =
       parseFloat(parsed.currentBalance) / parseFloat(event.target.value);
 
-    setSpotData((prev): any => {
+    setSpotData((prev): SpotDataInterface => {
       return { ...prev, orderMaxQuantity: newMax };
     });
   };
 
   const changeOrderQunatity = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSpotData((prev): any => {
+    setSpotData((prev): SpotDataInterface => {
       return { ...prev, orderQuantity: parseFloat(event.target.value) };
     });
   };
@@ -184,11 +186,11 @@ export default function SideCryptoPrice({ symbol }: any) {
       let parsed = JSON.parse(currentBalance);
       let current = parsed.currentBalance;
       let newMax = formatNumber(parseFloat(current) / parseFloat(data.c));
-      setSpotData((prev): any => {
+      setSpotData((prev): SpotDataInterface => {
         return { ...prev, maxQuantity: newMax };
       });
       if (parsed.spotBalance[symbol] != "undefined") {
-        setSpotData((prev): any => {
+        setSpotData((prev): SpotDataInterface => {
           return { ...prev, maxSellQuantity: parsed.spotBalance[symbol] };
         });
       }
@@ -199,7 +201,7 @@ export default function SideCryptoPrice({ symbol }: any) {
     if (auth) {
       let parsed = JSON.parse(currentBalance);
       if (parsed.spotBalance[symbol] != "undefined") {
-        setSpotData((prev): any => {
+        setSpotData((prev): SpotDataInterface => {
           return { ...prev, maxSellQuantity: parsed.spotBalance[symbol] };
         });
       }
@@ -214,7 +216,7 @@ export default function SideCryptoPrice({ symbol }: any) {
           return order.id === e.id;
         });
         if (e.pair === symbol && !b) {
-          setAllOrders((prev: any) => {
+          setAllOrders((prev) => {
             return [...prev, e];
           });
         }
