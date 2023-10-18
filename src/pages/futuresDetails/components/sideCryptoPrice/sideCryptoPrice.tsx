@@ -37,7 +37,7 @@ type FutureTypes = {
     type: "SHORT" | "LONG",
     takeProfit: number,
     stopLoss: number,
-  }, 
+  },
   sell: {
     maxQuantity: number,
     quantity: number,
@@ -49,11 +49,12 @@ type FutureTypes = {
     type: "SHORT" | "LONG",
     takeProfit: number,
     stopLoss: number,
+    leverage: number,
   }
 }
 
 
-export default function SideCryptoPrice({ symbol }: {symbol: string}) {
+export default function SideCryptoPrice({ symbol }: { symbol: string }) {
   const { currentBalance, auth, setCurrentBalance }: any =
     useContext(AuthContext);
 
@@ -102,16 +103,14 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
       takeProfit: 0,
       stopLoss: 0,
       price: 0,
-      }
+      leverage: 0,
+    }
   });
 
 
-  const handleChange = (action: "buy" | "sell" | "orderOpen", event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> ) => {
-
-    console.log(futuresData[action][event.target.name])
-
+  const handleChange = (action: "buy" | "sell" | "orderOpen", event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFuturesData((prev): FutureTypes => {
-      return {...prev}
+      return { ...prev, [action]: { ...prev[action], [event.target.name]: event.target.value } }
     })
   }
 
@@ -167,7 +166,7 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
         <Tab eventKey="buy" title="Buy">
           <label htmlFor="buyQuantity">Pass quantity to buy</label>
           <input
-          name="quantity"
+            name="quantity"
             type="range"
             max={futuresData.buy.maxQuantity}
             min={0}
@@ -179,7 +178,7 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
           />
 
           <input
-                    name="quantity"
+            name="quantity"
             type="number"
             max={futuresData.buy.maxQuantity}
             className={Class.input}
@@ -191,14 +190,55 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
             id="buyQuantity"
           ></input>
 
+          <label htmlFor="buyLeverage">Pass quantity to buy. Current: {futuresData.buy.leverage}</label>
 
-          <Form.Select aria-label="Default select example"  name="type" onChange={(e) => {
+          <input
+            name="leverage"
+            type="range"
+            max={50}
+            className={Class.input}
+            value={futuresData.buy.leverage}
+            onChange={(e) => {
               handleChange("buy", e)
-            }}>           
-             <option value="SHORT">SHORT</option>
+            }}
+            step={1}
+            id="buyLeverage"
+          ></input>
+
+
+          <Form.Select aria-label="Default select example" name="type" onChange={(e) => {
+            handleChange("buy", e)
+          }}>
+            <option value="SHORT">SHORT</option>
             <option value="LONG">LONG</option>
           </Form.Select>
 
+
+          <label htmlFor="sellingPrice">Set selling price.</label>
+          <input
+            name="takeProfit"
+            type="number"
+            className={Class.input}
+            value={futuresData.buy.takeProfit}
+            onChange={(e) => {
+              handleChange("buy", e)
+            }}
+            step={0.1}
+            id="buyLeverage"
+          ></input>
+
+          <label htmlFor="stopLoss">Set stop loss price.</label>
+          <input
+            name="stopLoss"
+            type="number"
+            className={Class.input}
+            value={futuresData.buy.takeProfit}
+            onChange={(e) => {
+              handleChange("buy", e)
+            }}
+            step={0.1}
+            id="stopLoss"
+          ></input>
 
           <button
             type="button"
@@ -240,7 +280,7 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
         </Tab> */}
 
         <Tab eventKey="order" title="Order">
-            
+
         </Tab>
       </Tabs>
     );
