@@ -240,6 +240,9 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
         }}
       >
         <Tab eventKey="buy" title="Buy">
+
+        <label className={Class.label} htmlFor="quantityBuy">Pass quantity to buy</label>
+
           <input
             type="range"
             max={spotData.maxQuantity}
@@ -255,6 +258,7 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
             className={Class.input}
             value={spotData.quantity}
             onChange={changeQuantity}
+            id="quantityBuy"
           ></input>
 
           <button
@@ -268,6 +272,9 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
           </button>
         </Tab>
         <Tab eventKey="sell" title="Sell">
+
+        <label className={Class.label} htmlFor="quantitySell">Pass quantity to sell</label>
+
           <input
             type="range"
             max={spotData.maxSellQuantity}
@@ -283,6 +290,7 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
             className={Class.input}
             value={spotData.sellQuantity}
             onChange={changeSellQuantity}
+            id="quantitySell"
           ></Form.Control>
 
           <button
@@ -297,12 +305,18 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
         </Tab>
 
         <Tab eventKey="order" title="Order">
+
+        <label className={Class.label} htmlFor="priceOrder">Pass price you want to buy</label>
+
           <Form.Control
             type="number"
             className={Class.input}
             value={spotData.orderPrice}
             onChange={changeOrderPrice}
+            id="priceOrder"
           ></Form.Control>
+
+        <label className={Class.label} htmlFor="quantityOrder">Pass quantity you want to buy</label>
 
           <Form.Control
             type="number"
@@ -311,6 +325,7 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
             max={spotData.orderMaxQuantity}
             step={0.1}
             onChange={changeOrderQunatity}
+            id="quantityOrder"
           ></Form.Control>
 
           <input

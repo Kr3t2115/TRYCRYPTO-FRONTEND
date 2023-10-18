@@ -8,7 +8,6 @@ import BuyCrypto from "../../../../services/buyCrypto";
 import { Link } from "react-router-dom";
 
 
-
 interface TickerInterface {
   e: string; // Event type
   E: number; // Event time
@@ -35,14 +34,21 @@ type FutureTypes = {
     maxQuantity: number,
     quantity: number,
     leverage: number,
-    type: "SHORT" | "LONG"
+    type: "SHORT" | "LONG",
+    takeProfit: number,
+    stopLoss: number,
   }, 
   sell: {
     maxQuantity: number,
     quantity: number,
   },
-  order: {
-    buyQuantity: number,
+  orderOpen: {
+    maxQuantity: number,
+    quantity: number,
+    price: number,
+    type: "SHORT" | "LONG",
+    takeProfit: number,
+    stopLoss: number,
   }
 }
 
@@ -75,28 +81,28 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
   });
 
   const [action, setAction] = useState<string>("Buy");
-  const [quantity, setQuantity] = useState(0);
-
-  const [maxQuantity, setMaxQuantity] = useState(0);
-
-  const [sellQuantity, setSellQuantity] = useState(0);
-
-  const [maxSellQuantity, setMaxSellQuantity] = useState(0);
 
   const [futuresData, setFuturesData] = useState<FutureTypes>({
     buy: {
       maxQuantity: 0,
       quantity: 0,
       leverage: 0,
-      type: "SHORT"
+      type: "SHORT",
+      stopLoss: 0,
+      takeProfit: 0
     },
     sell: {
       maxQuantity: 0,
       quantity: 0,
     },
-    order: {
-      buyQuantity: 0,
-    }
+    orderOpen: {
+      maxQuantity: 0,
+      quantity: 0,
+      type: "SHORT",
+      takeProfit: 0,
+      stopLoss: 0,
+      price: 0,
+      }
   });
 
   let indexOfName = symbol?.search("USDT");
