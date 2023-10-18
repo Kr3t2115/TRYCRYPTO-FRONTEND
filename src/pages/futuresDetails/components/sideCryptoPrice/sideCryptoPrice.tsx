@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useState } from "react";
 import Class from "./sideCryptoPrice.module.css";
 import useWebSocket from "react-use-websocket";
 import { Modal, Button, Form, Tab, Tabs } from "react-bootstrap";
@@ -105,6 +105,16 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
       }
   });
 
+
+  const handleChange = (action: "buy" | "sell" | "orderOpen", event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> ) => {
+
+    console.log(futuresData[action][event.target.name])
+
+    setFuturesData((prev): FutureTypes => {
+      return {...prev}
+    })
+  }
+
   let indexOfName = symbol?.search("USDT");
 
   let imageName = symbol?.slice(0, indexOfName).toLowerCase();
@@ -119,27 +129,16 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
 
   const handleShow = () => setShow(true);
 
-  const changeQuantity = (event: any) => {
-    setQuantity(parseFloat(event.target.value));
-  };
-
-  const changeSellQuantity = (event: any) => {
-    setSellQuantity(parseFloat(event.target.value));
-  };
-
   const handleForm = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
 
-    BuyCrypto(symbol, quantity, setCurrentBalance);
     setShow(false);
   };
 
   const handleSell = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
-
-    SellCrypto(symbol, sellQuantity, setCurrentBalance);
   };
 
   const { lastJsonMessage } = useWebSocket<any>(
@@ -166,38 +165,40 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
         }}
       >
         <Tab eventKey="buy" title="Buy">
-          <label></label>
+          <label htmlFor="buyQuantity">Pass quantity to buy</label>
           <input
+          name="quantity"
             type="range"
-            max={maxQuantity}
+            max={futuresData.buy.maxQuantity}
             min={0}
-            value={quantity}
-            onChange={changeQuantity}
+            value={futuresData.buy.quantity}
+            onChange={(e) => {
+              handleChange("buy", e)
+            }}
             step={0.1}
           />
 
           <input
+                    name="quantity"
             type="number"
-            max={maxQuantity}
+            max={futuresData.buy.maxQuantity}
             className={Class.input}
-            value={quantity}
-            onChange={changeQuantity}
+            value={futuresData.buy.quantity}
+            onChange={(e) => {
+              handleChange("buy", e)
+            }}
             step={0.1}
+            id="buyQuantity"
           ></input>
 
 
-          <select>
-            <option value="SHORT">SHORT</option>
+          <Form.Select aria-label="Default select example"  name="type" onChange={(e) => {
+              handleChange("buy", e)
+            }}>           
+             <option value="SHORT">SHORT</option>
             <option value="LONG">LONG</option>
-          </select>
+          </Form.Select>
 
-          <input
-            type="number"
-            max={maxQuantity}
-            className={Class.input}
-            value={quantity}
-            // onChange={}
-          ></input>
 
           <button
             type="button"
@@ -209,7 +210,7 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
             Buy
           </button>
         </Tab>
-        <Tab eventKey="sell" title="Sell">
+        {/* <Tab eventKey="sell" title="Sell">
           <input
             type="range"
             max={maxSellQuantity}
@@ -236,7 +237,7 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
           >
             Sell
           </button>
-        </Tab>
+        </Tab> */}
 
         <Tab eventKey="order" title="Order">
             
