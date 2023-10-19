@@ -13,6 +13,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     message: "",
   });
 
+  const [success, setSuccess] = useState<ErrorInterface>({
+    status: false,
+    message: "",
+  });
+
   const [loading, setLoading] = useState<Loading>({ status: false });
 
   const handleClose = () => setError({ message: "", status: false });
@@ -27,6 +32,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           setError: setError,
           loading: loading,
           setLoading: setLoading,
+          success: success,
+          setSuccess: setSuccess,
         }}
       >
         {loading?.status ? <Loader isOpen={loading.status}></Loader> : ""}
@@ -39,7 +46,35 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </Modal.Header>
               <Modal.Body>{error.message}</Modal.Body>
               <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setError({ status: false, message: "" });
+                  }}
+                >
+                  {t("Zamknij")}
+                </Button>
+              </Modal.Footer>
+            </Modal>
+          </>
+        ) : (
+          ""
+        )}
+
+        {success?.status ? (
+          <>
+            <Modal show={success.status} onHide={handleClose}>
+              <Modal.Header closeButton>
+                <Modal.Title>{t("Udało się!")}</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>{success.message}</Modal.Body>
+              <Modal.Footer>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setSuccess({ status: false, message: "" });
+                  }}
+                >
                   {t("Zamknij")}
                 </Button>
               </Modal.Footer>

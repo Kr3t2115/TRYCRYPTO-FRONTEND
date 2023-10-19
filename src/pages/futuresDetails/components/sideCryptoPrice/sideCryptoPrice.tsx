@@ -3,10 +3,9 @@ import Class from "./sideCryptoPrice.module.css";
 import useWebSocket from "react-use-websocket";
 import { Modal, Button, Form, Tab, Tabs } from "react-bootstrap";
 import { AuthContext } from "../../../../context/authContext";
-import SellCrypto from "../../../../services/sellCrypto";
-import BuyCrypto from "../../../../services/buyCrypto";
 import { Link } from "react-router-dom";
-
+import type { AuthType } from "../../../../context/authContext";
+import { BuyFutures } from "../../../../services/buyFutures";
 
 interface TickerInterface {
   e: string; // Event type
@@ -31,31 +30,30 @@ interface TickerInterface {
 
 type FutureTypes = {
   buy: {
-    maxQuantity: number,
-    quantity: number,
-    leverage: number,
-    type: "SHORT" | "LONG",
-    takeProfit: number,
-    stopLoss: number,
-  },
+    maxQuantity: number;
+    quantity: number;
+    leverage: number;
+    type: "SHORT" | "LONG";
+    takeProfit: number;
+    stopLoss: number;
+  };
   sell: {
-    maxQuantity: number,
-    quantity: number,
-  },
+    short: object;
+    long: object;
+  };
   orderOpen: {
-    maxQuantity: number,
-    quantity: number,
-    price: number,
-    type: "SHORT" | "LONG",
-    takeProfit: number,
-    stopLoss: number,
-    leverage: number,
-  }
-}
-
+    maxQuantity: number;
+    quantity: number;
+    price: number;
+    type: "SHORT" | "LONG";
+    takeProfit: number;
+    stopLoss: number;
+    leverage: number;
+  };
+};
 
 export default function SideCryptoPrice({ symbol }: { symbol: string }) {
-  const { currentBalance, auth, setCurrentBalance }: any =
+  const { currentBalance, auth, setCurrentBalance }: AuthType =
     useContext(AuthContext);
 
   const [show, setShow] = useState<boolean>(false);
@@ -87,14 +85,14 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
     buy: {
       maxQuantity: 0,
       quantity: 0,
-      leverage: 0,
+      leverage: 1,
       type: "SHORT",
       stopLoss: 0,
-      takeProfit: 0
+      takeProfit: 0,
     },
     sell: {
-      maxQuantity: 0,
-      quantity: 0,
+      short: {},
+      long: {},
     },
     orderOpen: {
       maxQuantity: 0,
@@ -103,16 +101,41 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
       takeProfit: 0,
       stopLoss: 0,
       price: 0,
-      leverage: 0,
-    }
+      leverage: 1,
+    },
   });
 
-
-  const handleChange = (action: "buy" | "sell" | "orderOpen", event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    action: "buy" | "sell" | "orderOpen",
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setFuturesData((prev): FutureTypes => {
-      return { ...prev, [action]: { ...prev[action], [event.target.name]: event.target.value } }
-    })
-  }
+      return {
+        ...prev,
+        [action]: {
+          ...prev[action],
+          [event.target.name]:
+            event.target.name !== "type"
+              ? parseFloat(event.target.value)
+              : event.target.value,
+        },
+      };
+    });
+  };
+
+  const handleBuy = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+
+    const postBody = {
+      quantity: futuresData.buy.quantity,
+      type: futuresData.buy.type,
+      takeProfit: futuresData.buy.takeProfit,
+      stopLoss: futuresData.buy.stopLoss,
+      leverage: futuresData.buy.leverage,
+    };
+
+    BuyFutures(symbol, postBody, setCurrentBalance);
+  };
 
   let indexOfName = symbol?.search("USDT");
 
@@ -130,20 +153,8 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
     return Math.trunc(num * calcDec) / calcDec;
   };
 
-  const handleClose = () => setShow(false);
-
-  const handleShow = () => setShow(true);
-
-  const handleForm = (e: any) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    setShow(false);
-  };
-
-  const handleSell = (e: any) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const settingShow = (newShow: boolean) => {
+    setShow(newShow);
   };
 
   const { lastJsonMessage } = useWebSocket<any>(
@@ -151,33 +162,49 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
   );
 
   useEffect(() => {
+    console.log(futuresData);
     if (lastJsonMessage !== null) {
       setData(lastJsonMessage);
     }
   }, [lastJsonMessage]);
 
   useEffect(() => {
-
     if (auth) {
       let parsed = JSON.parse(currentBalance);
       let current = parsed.currentBalance;
       let newMax = formatNumber(parseFloat(current) / parseFloat(data.c));
       setFuturesData((prev): FutureTypes => {
-        return {...prev, buy: {
-          ...prev.buy,
-          maxQuantity: newMax
-        } };
+        return {
+          ...prev,
+          buy: {
+            ...prev.buy,
+            maxQuantity: newMax,
+          },
+        };
       });
-      if (parsed.spotBalance[symbol] != "undefined" || !!parsed.spotBalance[symbol]) {
+      if (
+        parsed.spotBalance[symbol] != "undefined" ||
+        !!parsed.spotBalance[symbol]
+      ) {
         setFuturesData((prev): FutureTypes => {
-          return { ...prev, sell: {
-            ...prev.sell,
-          } };
+          return {
+            ...prev,
+            sell: {
+              ...prev.sell,
+            },
+          };
         });
       }
     }
-  }, [data.c])
+  }, [data.c]);
 
+  useEffect(() => {
+    let parsed = JSON.parse(currentBalance);
+    if (typeof parsed.futureBalance !== undefined) {
+    }
+  }, [currentBalance]);
+
+  if (auth) {
     modalBody = (
       <Tabs
         defaultActiveKey="buy"
@@ -199,11 +226,11 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
             min={0}
             value={futuresData.buy.quantity}
             onChange={(e) => {
-              handleChange("buy", e)
+              handleChange("buy", e);
             }}
             step={0.1}
           />
-             
+
           <input
             name="quantity"
             type="number"
@@ -211,44 +238,55 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
             className={Class.input}
             value={futuresData.buy.quantity}
             onChange={(e) => {
-              handleChange("buy", e)
+              handleChange("buy", e);
             }}
             step={0.1}
             id="buyQuantity"
           ></input>
 
-          <label htmlFor="buyLeverage">Pass quantity to buy. Current: {futuresData.buy.leverage}</label>
+          <label htmlFor="buyLeverage">
+            Set leverage power. Current: {futuresData.buy.leverage}
+          </label>
 
           <input
             name="leverage"
             type="range"
+            min={1}
             max={50}
             className={Class.input}
             value={futuresData.buy.leverage}
             onChange={(e) => {
-              handleChange("buy", e)
+              handleChange("buy", e);
             }}
             step={1}
             id="buyLeverage"
           ></input>
 
+          <label htmlFor="buyFutureType">Set type</label>
 
-          <Form.Select aria-label="Default select example" name="type" onChange={(e) => {
-            handleChange("buy", e)
-          }}>
+          <Form.Select
+            id="buyFutureType"
+            aria-label="Default select example"
+            name="type"
+            onChange={(
+              e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+            ) => {
+              handleChange("buy", e);
+            }}
+          >
             <option value="SHORT">SHORT</option>
             <option value="LONG">LONG</option>
           </Form.Select>
 
-
           <label htmlFor="sellingPrice">Set selling price.</label>
           <input
             name="takeProfit"
+            min={data.c}
             type="number"
             className={Class.input}
             value={futuresData.buy.takeProfit}
             onChange={(e) => {
-              handleChange("buy", e)
+              handleChange("buy", e);
             }}
             step={0.1}
             id="buyLeverage"
@@ -257,11 +295,12 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
           <label htmlFor="stopLoss">Set stop loss price.</label>
           <input
             name="stopLoss"
+            max={data.c}
             type="number"
             className={Class.input}
-            value={futuresData.buy.takeProfit}
+            value={futuresData.buy.stopLoss}
             onChange={(e) => {
-              handleChange("buy", e)
+              handleChange("buy", e);
             }}
             step={0.1}
             id="stopLoss"
@@ -271,43 +310,18 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
             type="button"
             className={Class.button + " " + Class.buttonSubmit}
             onClick={(e) => {
-              handleForm(e);
+              handleBuy(e);
             }}
           >
             Buy
           </button>
         </Tab>
-        {/* <Tab eventKey="sell" title="Sell">
-          <input
-            type="range"
-            max={maxSellQuantity}
-            min={0}
-            value={sellQuantity}
-            onChange={changeSellQuantity}
-            step={0.1}
-          />
 
-          <Form.Control
-            type="number"
-            max={maxSellQuantity}
-            className={Class.input}
-            value={sellQuantity}
-            onChange={changeSellQuantity}
-          ></Form.Control>
-
-          <button
-            type="button"
-            className={Class.button + " " + Class.buttonSubmit}
-            onClick={(e) => {
-              handleSell(e);
-            }}
-          >
-            Sell
-          </button>
-        </Tab> */}
-
-        <Tab eventKey="order" title="Order">
-
+        <Tab eventKey="sell" title="Sell">
+          <div>Short</div>
+          <input></input>
+          <div>Long</div>
+          <input></input>
         </Tab>
       </Tabs>
     );
@@ -364,13 +378,20 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
         </tbody>
       </table>
 
-      <Button onClick={handleShow} className={Class.button}>
+      <Button
+        onClick={() => {
+          settingShow(true);
+        }}
+        className={Class.button}
+      >
         Buy/Sell {symbol}
       </Button>
 
       <Modal
         show={show}
-        onHide={handleClose}
+        onHide={() => {
+          settingShow(false);
+        }}
         backdrop="static"
         keyboard={false}
         className={Class.modal}
@@ -384,7 +405,9 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
         <Modal.Footer>
           <Button
             variant="secondary"
-            onClick={handleClose}
+            onClick={() => {
+              settingShow(false);
+            }}
             className={Class.button}
           >
             Close
