@@ -124,6 +124,12 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
 
   let modalBody;
 
+  const formatNumber = (num: number, dec = 1) => {
+    const calcDec = Math.pow(10, dec);
+
+    return Math.trunc(num * calcDec) / calcDec;
+  };
+
   const handleClose = () => setShow(false);
 
   const handleShow = () => setShow(true);
@@ -150,7 +156,28 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
     }
   }, [lastJsonMessage]);
 
-  if (auth == true) {
+  useEffect(() => {
+
+    if (auth) {
+      let parsed = JSON.parse(currentBalance);
+      let current = parsed.currentBalance;
+      let newMax = formatNumber(parseFloat(current) / parseFloat(data.c));
+      setFuturesData((prev): FutureTypes => {
+        return {...prev, buy: {
+          ...prev.buy,
+          maxQuantity: newMax
+        } };
+      });
+      if (parsed.spotBalance[symbol] != "undefined" || !!parsed.spotBalance[symbol]) {
+        setFuturesData((prev): FutureTypes => {
+          return { ...prev, sell: {
+            ...prev.sell,
+          } };
+        });
+      }
+    }
+  }, [data.c])
+
     modalBody = (
       <Tabs
         defaultActiveKey="buy"
@@ -176,7 +203,7 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
             }}
             step={0.1}
           />
-
+             
           <input
             name="quantity"
             type="number"
