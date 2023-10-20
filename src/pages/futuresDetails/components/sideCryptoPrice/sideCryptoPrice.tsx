@@ -38,8 +38,10 @@ type FutureTypes = {
     stopLoss: number;
   };
   sell: {
-    short: object;
-    long: object;
+    maxShortSell: number;
+    currentShortSell: number;
+    maxLongSell: number;
+    currentLongtSell: number;
   };
   orderOpen: {
     maxQuantity: number;
@@ -91,8 +93,10 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
       takeProfit: 0,
     },
     sell: {
-      short: {},
-      long: {},
+      maxShortSell: 0,
+      currentShortSell: 0,
+      maxLongSell: 0,
+      currentLongtSell: 0,
     },
     orderOpen: {
       maxQuantity: 0,
@@ -126,15 +130,13 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
   const handleBuy = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    const postBody = {
+    BuyFutures(symbol, {
       quantity: futuresData.buy.quantity,
       type: futuresData.buy.type,
       takeProfit: futuresData.buy.takeProfit,
       stopLoss: futuresData.buy.stopLoss,
       leverage: futuresData.buy.leverage,
-    };
-
-    BuyFutures(symbol, postBody, setCurrentBalance);
+    }, setCurrentBalance);
   };
 
   let indexOfName = symbol?.search("USDT");
@@ -162,7 +164,6 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
   );
 
   useEffect(() => {
-    console.log(futuresData);
     if (lastJsonMessage !== null) {
       setData(lastJsonMessage);
     }
@@ -200,7 +201,14 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
 
   useEffect(() => {
     let parsed = JSON.parse(currentBalance);
-    if (typeof parsed.futureBalance !== undefined) {
+    if (typeof parsed.futureBalance.short[symbol] !== undefined) {
+
+      setFuturesData((prev): FutureTypes => {
+        return {...prev, sell: {
+          ...prev.sell,
+          maxShortSell: parseFloat(parsed.futureBalance.short[symbol])
+        }}
+      })
     }
   }, [currentBalance]);
 
@@ -319,7 +327,18 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
 
         <Tab eventKey="sell" title="Sell">
           <div>Short</div>
-          <input></input>
+          <span>Current sell quantity: {futuresData.sell.currentShortSell}</span>
+          <input
+          name="currentShortSell"
+          type="range"
+          min={0}
+          max={futuresData.sell.maxShortSell}
+          step={0.1}
+          value={futuresData.sell.currentShortSell}
+          onChange={(e) => {
+            handleChange("sell" , e);
+          }}
+          ></input>
           <div>Long</div>
           <input></input>
         </Tab>

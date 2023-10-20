@@ -1,20 +1,18 @@
 import axios from "axios";
 
-export default function Logout(setAuth: any) {
-  axios
-    .get("https://api.trycrypto.pl/api/user/logout", {
-      withCredentials: true,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    .then((res: any) => {
+export default async function Logout(setAuth: any) {
 
+  try {
+
+    const res = await  axios.get("https://api.trycrypto.pl/api/user/logout", 
+    {withCredentials: true});
+
+    if(res.status === 200) {
       setAuth(false)
-
-      console.log(res);
-    })
-    .catch((response) => {
-      return response;
-    });
+    }    
+  } catch (error: unknown) {
+    if(error instanceof Error) {
+      throw new Error(error.message)
+    }
+  }
 }

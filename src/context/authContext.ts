@@ -5,7 +5,7 @@ export type AuthType = {
   auth: boolean;
   setAuth: (value: boolean) => void;
   currentBalance: string;
-  setCurrentBalance: (value: object) => void;
+  setCurrentBalance: (value: object|undefined) => void;
   userInfo: object;
   setUserInfo: (value: object) => void;
 };
@@ -14,7 +14,7 @@ export const AuthContext = createContext<AuthType>({
   auth: false,
   setAuth: (value: boolean) => {},
   currentBalance: "",
-  setCurrentBalance: (value: Object) => {},
+  setCurrentBalance: () => {},
   userInfo: {},
   setUserInfo: (value: Object) => {},
 });

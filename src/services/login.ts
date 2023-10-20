@@ -7,23 +7,29 @@ export default async function Login(
   setAuth: any,
   setCurrentBalance: any
 ) {
-  axios
+
+
+  try {
+
+    const res = await  axios
     .post(import.meta.env.VITE_API_URL + "/user/login", objectToSend, {
-      withCredentials: true,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    .then((response) => {
-      setAuth(true);
+      withCredentials: true})
+    
+      if(res.status === 200) {
+        setAuth(true);
 
-      GetWalletBalance(setCurrentBalance);
+        GetWalletBalance(setCurrentBalance);
+  
+        navigate("/");
 
-      navigate("/");
+        return res.data;
+      }
 
-      return response;
-    })
-    .catch((response) => {
-      return response;
-    });
+  } catch (error: unknown) {
+    if(error instanceof Error) {
+      throw new Error(error.message)
+    }
+  }
+  
+
 }

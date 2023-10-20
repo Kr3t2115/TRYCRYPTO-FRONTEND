@@ -8,13 +8,15 @@ export default async function sellSpotOrder(
   setCurrentBalance: any
 ) {
   try {
-
     const res = await axios.get(
       import.meta.env.VITE_API_URL + "/api/spot/limit/close/" + closedId,
       { withCredentials: true }
     );
 
-    GetWalletBalance(setCurrentBalance);
+    if(res.status === 200) {
+      GetWalletBalance(setCurrentBalance);
+    }
+
   } catch (error) {
     if (error instanceof Error) {
       console.log(error);

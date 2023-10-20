@@ -1,24 +1,17 @@
+import axios from "axios";
+
 export default async function RegisterApi(objectToSend: any, navigate: any) {
-  const sendRequest = await fetch(
-    import.meta.env.VITE_API_URL + "/user/register",
-    {
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-      body: JSON.stringify(objectToSend),
-      credentials: "same-origin",
+  try {
+    const res = await axios.post(import.meta.env.VITE_API_URL + "/user/register", 
+    objectToSend, {withCredentials: true})
+
+    if(res.status === 200) {
+      navigate("/login");
+      return res.data;
     }
-  );
-
-  if (!sendRequest.ok) {
-    throw new Error(sendRequest.statusText);
-  } else {
-    const response = await sendRequest.json();
-
-    navigate("/login");
-
-    return response;
+  } catch (error: unknown) {
+    if(error instanceof Error) {
+      throw new Error(error.message)
+    }
   }
 }

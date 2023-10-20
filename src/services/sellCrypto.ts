@@ -1,28 +1,23 @@
 import axios from "axios";
 import GetWalletBalance from "./getWalletBalance";
 
-export default function SellCrypto(
+export default async function SellCrypto(
   symbol: string,
-  quantity: any,
+  quantity: number,
   setCurrentBalance: any
 ) {
-  axios
-    .post(
+  try {
+    const res = await axios.post(
       import.meta.env.VITE_API_URL + "/api/spot/market/sell/" + symbol,
-      {
-        quantity: quantity,
-      },
-      {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-        },
+      {quantity: quantity},{withCredentials: true})
+
+      if(res.status === 200) {
+        GetWalletBalance(setCurrentBalance);
       }
-    )
-    .then((response) => {
-      GetWalletBalance(setCurrentBalance);
-    })
-    .catch((error) => {
-      throw new Error(error);
-    });
+    
+  } catch (error: unknown) {
+    if(error instanceof Error) {
+      throw new Error(error.message)
+    }
+  }
 }
