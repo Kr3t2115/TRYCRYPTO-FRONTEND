@@ -6,6 +6,8 @@ import { AuthContext } from "../../../../context/authContext";
 import { Link } from "react-router-dom";
 import type { AuthType } from "../../../../context/authContext";
 import { BuyFutures } from "../../../../services/buyFutures";
+import getPositionsByPair from "../../../../services/getPositionsByPair";
+import { SellFutures } from "../../../../services/sellFutures";
 
 interface TickerInterface {
   e: string; // Event type
@@ -28,6 +30,19 @@ interface TickerInterface {
   n: number; // Total number of trades
 }
 
+interface SellType {
+  id: number;
+  leverage: number;
+  liquidationPrice: number;
+  pair: string;
+  purchasePrice: number;
+  quantity: number;
+  stopLoss: number | null;
+  takeProfit: number | null;
+  type: string;
+  userId: number;
+}
+
 type FutureTypes = {
   buy: {
     maxQuantity: number;
@@ -37,12 +52,7 @@ type FutureTypes = {
     takeProfit: number;
     stopLoss: number;
   };
-  sell: {
-    maxShortSell: number;
-    currentShortSell: number;
-    maxLongSell: number;
-    currentLongtSell: number;
-  };
+  sell: Array<SellType>;
   orderOpen: {
     maxQuantity: number;
     quantity: number;
@@ -59,6 +69,8 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
     useContext(AuthContext);
 
   const [show, setShow] = useState<boolean>(false);
+
+  const [array, setArray] = useState([]);
 
   const [data, setData] = useState<TickerInterface>({
     e: "", // Event type
@@ -92,12 +104,7 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
       stopLoss: 0,
       takeProfit: 0,
     },
-    sell: {
-      maxShortSell: 0,
-      currentShortSell: 0,
-      maxLongSell: 0,
-      currentLongtSell: 0,
-    },
+    sell: [],
     orderOpen: {
       maxQuantity: 0,
       quantity: 0,
@@ -130,13 +137,23 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
   const handleBuy = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    BuyFutures(symbol, {
-      quantity: futuresData.buy.quantity,
-      type: futuresData.buy.type,
-      takeProfit: futuresData.buy.takeProfit,
-      stopLoss: futuresData.buy.stopLoss,
-      leverage: futuresData.buy.leverage,
-    }, setCurrentBalance);
+    BuyFutures(
+      symbol,
+      {
+        quantity: futuresData.buy.quantity,
+        type: futuresData.buy.type,
+        takeProfit: futuresData.buy.takeProfit,
+        stopLoss: futuresData.buy.stopLoss,
+        leverage: futuresData.buy.leverage,
+      },
+      setCurrentBalance
+    );
+  };
+
+  const handleSell = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+
+    SellFutures(167, 0.1, setCurrentBalance);
   };
 
   let indexOfName = symbol?.search("USDT");
@@ -183,34 +200,22 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
           },
         };
       });
-      if (
-        parsed.spotBalance[symbol] != "undefined" ||
-        !!parsed.spotBalance[symbol]
-      ) {
-        setFuturesData((prev): FutureTypes => {
-          return {
-            ...prev,
-            sell: {
-              ...prev.sell,
-            },
-          };
-        });
-      }
     }
   }, [data.c]);
 
   useEffect(() => {
-    let parsed = JSON.parse(currentBalance);
-    if (typeof parsed.futureBalance.short[symbol] !== undefined) {
+    let positions = getPositionsByPair(symbol);
 
+    positions.then((res) => {
       setFuturesData((prev): FutureTypes => {
-        return {...prev, sell: {
-          ...prev.sell,
-          maxShortSell: parseFloat(parsed.futureBalance.short[symbol])
-        }}
-      })
-    }
+        return { ...prev, sell: res };
+      });
+    });
   }, [currentBalance]);
+
+  useEffect(() => {
+    console.log(futuresData);
+  }, [futuresData]);
 
   if (auth) {
     modalBody = (
@@ -327,18 +332,24 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
 
         <Tab eventKey="sell" title="Sell">
           <div>Short</div>
-          <span>Current sell quantity: {futuresData.sell.currentShortSell}</span>
-          <input
-          name="currentShortSell"
-          type="range"
-          min={0}
-          max={futuresData.sell.maxShortSell}
-          step={0.1}
-          value={futuresData.sell.currentShortSell}
-          onChange={(e) => {
-            handleChange("sell" , e);
-          }}
-          ></input>
+          {futuresData.sell &&
+            futuresData.sell.map((e: SellType) => {
+              return (
+                <div key={"selledFuture" + e.id}>
+                  <p>
+                    {e.pair} with {e.quantity} quantity
+                  </p>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      handleSell(e);
+                    }}
+                  >
+                    Sell
+                  </button>
+                </div>
+              );
+            })}
           <div>Long</div>
           <input></input>
         </Tab>
