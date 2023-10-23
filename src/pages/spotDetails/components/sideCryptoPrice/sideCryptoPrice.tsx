@@ -8,8 +8,7 @@ import BuyCrypto from "../../../../services/buyCrypto";
 import SellCrypto from "../../../../services/sellCrypto";
 import orderSpot from "../../../../services/orderSpot";
 import sellSpotOrder from "../../../../services/sellSpotOrder";
-import type {AuthType}  from "../../../../context/authContext"
-
+import type { AuthType } from "../../../../context/authContext";
 
 interface TickerInterface {
   e: string; // Event type
@@ -41,7 +40,7 @@ interface SpotDataInterface {
   orderPrice: number;
   orderMaxQuantity: number;
   sellOrderQuantity: number;
-  sellOrderPrice: number,
+  sellOrderPrice: number;
 }
 
 interface singleOrder {
@@ -53,7 +52,7 @@ interface singleOrder {
   userId: number;
 }
 
-export default function SideCryptoPrice({ symbol }: {symbol: string}) {
+export default function SideCryptoPrice({ symbol }: { symbol: string }) {
   const { currentBalance, auth, setCurrentBalance }: AuthType =
     useContext(AuthContext);
 
@@ -116,7 +115,7 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
 
   const changeSellQuantity = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSpotData((prev): SpotDataInterface => {
-      return { ...prev, sellQuantity: parseFloat(event.target.value)};
+      return { ...prev, sellQuantity: parseFloat(event.target.value) };
     });
   };
 
@@ -160,7 +159,12 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
     e.preventDefault();
     e.stopPropagation();
 
-    orderSpot(symbol, spotData.orderQuantity, spotData.orderPrice, setCurrentBalance);
+    orderSpot(
+      symbol,
+      spotData.orderQuantity,
+      spotData.orderPrice,
+      setCurrentBalance
+    );
   };
 
   let indexOfName = symbol?.search("USDT");
@@ -206,10 +210,9 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
         });
       }
 
-      if(parsed.spotOrders.length == 0) {
-        setAllOrders([])
+      if (parsed.spotOrders.length == 0) {
+        setAllOrders([]);
       }
-
 
       parsed.spotOrders.map((e: singleOrder) => {
         let b = allOrders?.some((order) => {
@@ -240,8 +243,9 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
         }}
       >
         <Tab eventKey="buy" title="Buy">
-
-        <label className={Class.label} htmlFor="quantityBuy">Pass quantity to buy</label>
+          <label className={Class.label} htmlFor="quantityBuy">
+            Pass quantity to buy
+          </label>
 
           <input
             type="range"
@@ -272,8 +276,9 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
           </button>
         </Tab>
         <Tab eventKey="sell" title="Sell">
-
-        <label className={Class.label} htmlFor="quantitySell">Pass quantity to sell</label>
+          <label className={Class.label} htmlFor="quantitySell">
+            Pass quantity to sell
+          </label>
 
           <input
             type="range"
@@ -305,8 +310,9 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
         </Tab>
 
         <Tab eventKey="order" title="Order">
-
-        <label className={Class.label} htmlFor="priceOrder">Pass price you want to buy</label>
+          <label className={Class.label} htmlFor="priceOrder">
+            Pass price you want to buy
+          </label>
 
           <Form.Control
             type="number"
@@ -316,7 +322,9 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
             id="priceOrder"
           ></Form.Control>
 
-        <label className={Class.label} htmlFor="quantityOrder">Pass quantity you want to buy</label>
+          <label className={Class.label} htmlFor="quantityOrder">
+            Pass quantity you want to buy
+          </label>
 
           <Form.Control
             type="number"
@@ -346,7 +354,6 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
 
           {allOrders?.length > 0 && (
             <div>
-
               <div>All opened spot orders</div>
               <ul>
                 {allOrders.map((e) => {
@@ -356,7 +363,7 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
                         {e.quantity} * {e.price}
                       </span>{" "}
                       <button
-                      className="btn btn-danger px-2 py-1"
+                        className="btn btn-danger px-2 py-1"
                         onClick={() => {
                           sellSpotOrder(e.id, setCurrentBalance);
                         }}
@@ -435,7 +442,7 @@ export default function SideCryptoPrice({ symbol }: {symbol: string}) {
         show={show}
         onHide={handleClose}
         backdrop="static"
-        keyboard={false}
+        keyboard={true}
         className={Class.modal}
       >
         <Modal.Header closeButton>

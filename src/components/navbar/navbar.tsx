@@ -110,7 +110,7 @@ export default function Navbar() {
             setLoggedOut(false);
           }}
           backdrop="static"
-          keyboard={false}
+          keyboard={true}
           className={Class.modal}
         >
           <Modal.Header>

@@ -1,23 +1,16 @@
 import axios from "axios";
 import GetWalletBalance from "./getWalletBalance";
 
-type objectType = {
-  quantity: number;
-  type: string;
-  takeProfit: number;
-  stopLoss: number;
-  leverage: number;
-};
-
-export const BuyFutures = async (
-  symbol: string,
-  body: objectType,
+export default async function futurePositionUpdate(
+  id: number,
+  stopLoss: number,
+  takeProfit: number,
   setCurrentBalance: any
-) => {
+) {
   try {
     const res = await axios.post(
-      import.meta.env.VITE_API_URL + "/api/derivatives/market/open/" + symbol,
-      body,
+      import.meta.env.VITE_API_URL + "/api/derivatives/position/update/" + id,
+      { stopLoss: Number(stopLoss), takeProfit: Number(takeProfit) },
       { withCredentials: true }
     );
 
@@ -26,7 +19,7 @@ export const BuyFutures = async (
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      throw new Error(error.message);
+      console.log(error.message);
     }
   }
-};
+}

@@ -18,6 +18,11 @@ W przypadku type: "SHORT" , stopLoss musi być wyższy od ceny zakupu , a takePr
   "leverage": "number" // Opcjonalne , dźwignia większe od 1 mniejsze od 50
 }
 
+pnl = profit and lose
+
+pnl for long = ((quantity * obecna_cena * 100)  / (quantity * cena_zakupu)) * dziwgnia
+
+pnl for short = ((quantity * cena_zakupu * 100)  / (quantity * obecna_cena)) * dziwgnia
 
 
 Futures zamykanie 
