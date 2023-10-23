@@ -53,6 +53,7 @@ type FutureTypes = {
     stopLoss: number;
   };
   sell: Array<SellType>;
+  selledFutures: object,
   orderOpen: {
     maxQuantity: number;
     quantity: number;
@@ -105,6 +106,7 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
       takeProfit: 0,
     },
     sell: [],
+    selledFutures: {},
     orderOpen: {
       maxQuantity: 0,
       quantity: 0,
@@ -207,15 +209,30 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
     let positions = getPositionsByPair(symbol);
 
     positions.then((res) => {
-      setFuturesData((prev): FutureTypes => {
-        return { ...prev, sell: res };
-      });
+
+
+      if(Array.isArray(res)) {
+        setFuturesData((prev): FutureTypes => {
+          return { ...prev, sell: res };
+        });
+
+        let arr: { id: number; selledQuantity: number; }[] = [];
+        res.map((val) => {
+          arr.push({id: val.id , selledQuantity: val.quantity})
+        })        
+        let a = arr.reduce((a, v) => ({ ...a, [v.id]: 0}), {}) 
+
+        setFuturesData((prev): FutureTypes => {
+          return {...prev, selledFutures: a}
+        })
+      }
     });
+
+
+
+
   }, [currentBalance]);
 
-  useEffect(() => {
-    console.log(futuresData);
-  }, [futuresData]);
 
   if (auth) {
     modalBody = (
@@ -333,12 +350,26 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
         <Tab eventKey="sell" title="Sell">
           <div>Short</div>
           {futuresData.sell &&
-            futuresData.sell.map((e: SellType) => {
+            futuresData.sell.map((values: SellType) => {
               return (
-                <div key={"selledFuture" + e.id}>
+                <div key={"selledFuture" + values.id}>
                   <p>
-                    {e.pair} with {e.quantity} quantity
+                    {values.pair} with {values.quantity} quantity
                   </p>
+
+                  <input 
+                    type="range" 
+                    min={0}
+                    max={values.quantity}
+                    onChange={(e) => {
+                      setFuturesData((prev) :FutureTypes => {
+                        return {...prev, selledFutures: {...prev.selledFutures , [values.id]: parseFloat(e.target.value)}}
+                      })
+                      console.log(futuresData)
+                    }}
+                    // value={parseFloat(futuresData.selledFutures[values.id])}
+                    defaultValue={parseFloat(futuresData.selledFutures[values.id])}
+                  ></input>
                   <button
                     type="button"
                     onClick={(e) => {
