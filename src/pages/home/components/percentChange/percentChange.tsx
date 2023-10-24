@@ -22,16 +22,13 @@ export default function PercentChange(props: any) {
 
     setDecrease(dec)
 
-
   }, [spotData])
 
 
   return (
     <div className={Class.percentChange}>
       <Swiper
-        pagination={{
-          dynamicBullets: true,
-        }}
+        pagination={true}
         effect={"cards"}
         navigation={true}
         grabCursor={true}

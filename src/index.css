@@ -14,6 +14,9 @@
 .swiper-pagination-bullet-active {
   background-color: var(--font-color) !important;
 }
+.swiper-pagination-bullet {
+  background: #fff;
+}
 
 .swiper-pagination-bullet-active-next {
   background-color: #fff !important;
@@ -27,6 +30,8 @@
   color: #fff !important;
   margin-left: 20px;
   margin-right: 20px;
+  position: absolute;
+  bottom: 0px;
 }
 
 .swiper-pagination {

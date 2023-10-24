@@ -9,7 +9,10 @@ import { BuyFutures } from "../../../../services/buyFutures";
 import getPositionsByPair from "../../../../services/getPositionsByPair";
 import { SellFutures } from "../../../../services/sellFutures";
 import futurePositionUpdate from "../../../../services/futurePositionUpdate";
-
+import { Navigation, Pagination } from 'swiper';// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/navigation';
+import { Swiper, SwiperSlide } from 'swiper/react';
 interface TickerInterface {
   e: string; // Event type
   E: number; // Event time
@@ -265,6 +268,9 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
           } else if (e == "close") {
             setAction("Close position");
           }
+          else if(e == "order") {
+            setAction("Open order")
+          }
         }}
       >
         <Tab eventKey="open" title="Open">
@@ -370,9 +376,13 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
         <Tab eventKey="close" title="Close">
           <div>Short</div>
           {futuresData.sell &&
-            futuresData.sell.map((values: SellType) => {
+          <Swiper centeredSlides={true}
+          pagination={{ clickable: true }} modules={[Navigation, Pagination]} navigation>
+          {futuresData.sell.map((values: SellType) => {
               return (
-                <div key={"selledFuture" + values.id}>
+                <SwiperSlide key={"selledFuture" + values.id}>
+
+                  <div style={{padding: "0px 50px"}}>
                   <p>
                     {values.pair} with {values.quantity} quantity
                   </p>
@@ -389,7 +399,7 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
                         futuresData.updateFutures[values.id].newStopLoss
                       }
                       value={futuresData.updateFutures[values.id].newStopLoss}
-                      max={values.purchasePrice}
+                      min={data.c}
                       onChange={(e) => {
                         setFuturesData((prev): FutureTypes => {
                           return {
@@ -413,7 +423,7 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
                         futuresData.updateFutures[values.id].newTakeProfit
                       }
                       value={futuresData.updateFutures[values.id].newTakeProfit}
-                      min={values.purchasePrice}
+                      max={data.c}
                       onChange={(e) => {
                         setFuturesData((prev): FutureTypes => {
                           return {
@@ -472,12 +482,74 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
                   >
                     Sell
                   </button>
-                </div>
+                  </div>
+                  
+                </SwiperSlide>
               );
             })}
-          <div>Long</div>
-          <input></input>
+
+          </Swiper>}
         </Tab>
+
+        <Tab title="Order" eventKey="order">
+
+            <label>Quantity</label>
+            <input type="number"></input>
+
+            <label>Price</label>
+            <input type="number"></input>
+
+            <label>Leverage</label>
+            <input type="range" min={0} max={50} step={1}></input>
+
+            <label>Type</label>
+            <Form.Select
+            id="buyFutureType"
+            aria-label="Default select example"
+            name="type"
+            onChange={(
+              e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+            ) => {
+              handleChange("buy", e);
+            }}
+          >
+            <option value="SHORT">SHORT</option>
+            <option value="LONG">LONG</option>
+          </Form.Select>
+
+          <label htmlFor="sellingPrice">Set selling price.</label>
+          <input
+            name="takeProfit"
+            min={data.c}
+            type="number"
+            className={Class.input}
+            value={futuresData.buy.takeProfit}
+            onChange={(e) => {
+              handleChange("buy", e);
+            }}
+            step={0.1}
+            id="buyLeverage"
+          ></input>
+
+          <label htmlFor="stopLoss">Set stop loss price.</label>
+          <input
+            name="stopLoss"
+            max={data.c}
+            type="number"
+            className={Class.input}
+            value={futuresData.buy.stopLoss}
+            onChange={(e) => {
+              handleChange("buy", e);
+            }}
+            step={0.1}
+            id="stopLoss"
+          ></input>
+                
+          
+          
+          </Tab>
+
+
       </Tabs>
     );
   } else {
@@ -550,6 +622,7 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
         backdrop="static"
         keyboard={true}
         className={Class.modal}
+        
       >
         <Modal.Header closeButton>
           <Modal.Title>
