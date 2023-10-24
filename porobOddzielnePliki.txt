@@ -1,0 +1,10 @@
+masz kurwa porobić  pliki
+
+user.ts
+
+spot.ts
+
+futures.ts
+
+
+i tam wpierodlić funkcji z tym związane

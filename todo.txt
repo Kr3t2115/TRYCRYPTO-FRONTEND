@@ -51,7 +51,6 @@ Pair (nazwa) w urlu
   "leverage": "number" // Opcjonalne , dźwignia większe od 1 mniejsze od 50
 }
 
-
 Futures order zamykanie
 
 LINK: /api/derivatives/limit/close/{id}

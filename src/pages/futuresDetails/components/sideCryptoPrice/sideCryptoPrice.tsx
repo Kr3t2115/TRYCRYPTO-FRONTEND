@@ -9,10 +9,11 @@ import { BuyFutures } from "../../../../services/buyFutures";
 import getPositionsByPair from "../../../../services/getPositionsByPair";
 import { SellFutures } from "../../../../services/sellFutures";
 import futurePositionUpdate from "../../../../services/futurePositionUpdate";
-import { Navigation, Pagination } from 'swiper';// Import Swiper styles
-import 'swiper/css';
-import 'swiper/css/navigation';
-import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from "swiper"; // Import Swiper styles
+import "swiper/css";
+import "swiper/css/navigation";
+import { Swiper, SwiperSlide } from "swiper/react";
+import openOrderFutures from "../../../../services/openOrderFutures";
 interface TickerInterface {
   e: string; // Event type
   E: number; // Event time
@@ -43,7 +44,7 @@ interface SellType {
   quantity: number;
   stopLoss: number | null;
   takeProfit: number | null;
-  type: string;
+  type: "SHORT" | "LONG";
   userId: number;
 }
 
@@ -57,7 +58,8 @@ type FutureTypes = {
     stopLoss: number;
   };
   sell: Array<SellType>;
-  selledFutures: { [k: number]: number };
+  selledFutureShort: { [k: number]: number };
+  selledFutureLong: { [k: number]: number };
   updateFutures: {
     [k: number]: { newTakeProfit: number; newStopLoss: number };
   };
@@ -114,7 +116,8 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
     },
     sell: [],
     updateFutures: {},
-    selledFutures: {},
+    selledFutureShort: {},
+    selledFutureLong: {},
     orderOpen: {
       maxQuantity: 0,
       quantity: 0,
@@ -163,8 +166,26 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
   const handleSell = (e: React.MouseEvent<HTMLButtonElement>, id: number) => {
     e.preventDefault();
 
-    SellFutures(id, futuresData.selledFutures[id], setCurrentBalance);
+    SellFutures(id, futuresData.selledFutureShort[id], setCurrentBalance);
   };
+
+  const handleOrder = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+
+    openOrderFutures(
+      symbol,
+      {
+        quantity: futuresData.orderOpen.quantity,
+        price: futuresData.orderOpen.price,
+        type: futuresData.orderOpen.type,
+        takeProfit: futuresData.orderOpen.takeProfit,
+        stopLoss: futuresData.orderOpen.stopLoss,
+        leverage: futuresData.orderOpen.leverage,
+      },
+      setCurrentBalance
+    );
+  };
+
   let indexOfName = symbol?.search("USDT");
 
   let imageName = symbol?.slice(0, indexOfName).toLowerCase();
@@ -229,6 +250,7 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
         }[] = [];
         res.map((val) => {
           arr.push({ id: val.id, selledQuantity: val.quantity });
+
           updateArr.push({
             id: val.id,
             newTakeProfit: val.takeProfit === null ? 0 : val.takeProfit,
@@ -247,15 +269,11 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
           {}
         );
         setFuturesData((prev): FutureTypes => {
-          return { ...prev, selledFutures: a, updateFutures: b };
+          return { ...prev, selledFutureShort: a, updateFutures: b };
         });
       }
     });
   }, [currentBalance]);
-
-  useEffect(() => {
-    console.log(futuresData);
-  }, [futuresData]);
 
   if (auth) {
     modalBody = (
@@ -267,9 +285,8 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
             setAction("Open position");
           } else if (e == "close") {
             setAction("Close position");
-          }
-          else if(e == "order") {
-            setAction("Open order")
+          } else if (e == "order") {
+            setAction("Open order");
           }
         }}
       >
@@ -309,7 +326,6 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
             type="range"
             min={1}
             max={50}
-            className={Class.input}
             value={futuresData.buy.leverage}
             onChange={(e) => {
               handleChange("buy", e);
@@ -374,143 +390,207 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
         </Tab>
 
         <Tab eventKey="close" title="Close">
-          <div>Short</div>
           {futuresData.sell &&
-          <Swiper centeredSlides={true}
-          pagination={{ clickable: true }} modules={[Navigation, Pagination]} navigation>
-          {futuresData.sell.map((values: SellType) => {
-              return (
-                <SwiperSlide key={"selledFuture" + values.id}>
+            futuresData.sell.some((e) => e.type === "SHORT") && (
+              <div>
+                <div>Short</div>
+                <Swiper
+                  centeredSlides={true}
+                  pagination={{ clickable: true }}
+                  modules={[Navigation, Pagination]}
+                  navigation
+                >
+                  {futuresData.sell.map((values: SellType) => {
+                    if (values.type === "SHORT") {
+                      return (
+                        <SwiperSlide key={"selledFuture" + values.id}>
+                          <div style={{ padding: "0px 50px" }}>
+                            <table style={{ width: "100%" }}>
+                              <tr>
+                                <th>Quantity: {values.quantity}</th>
+                                <th>Leverage: {values.leverage}</th>
+                                <th>
+                                  Take profit:{" "}
+                                  {values.takeProfit === null
+                                    ? "Not set"
+                                    : values.takeProfit}
+                                </th>
+                                <th>
+                                  Stop loss:{" "}
+                                  {values.stopLoss === null
+                                    ? "Not set"
+                                    : values.stopLoss}
+                                </th>
+                                <th>Purchase price: {values.purchasePrice}</th>
+                              </tr>
+                            </table>
 
-                  <div style={{padding: "0px 50px"}}>
-                  <p>
-                    {values.pair} with {values.quantity} quantity
-                  </p>
+                            <form
+                              onSubmit={(e) => {
+                                e.preventDefault();
 
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                    }}
-                  >
-                    <label>Stop loss</label>
-                    <input
-                      type="number"
-                      defaultValue={
-                        futuresData.updateFutures[values.id].newStopLoss
-                      }
-                      value={futuresData.updateFutures[values.id].newStopLoss}
-                      min={data.c}
-                      onChange={(e) => {
-                        setFuturesData((prev): FutureTypes => {
-                          return {
-                            ...prev,
-                            updateFutures: {
-                              ...prev.updateFutures,
-                              [values.id]: {
-                                ...prev.updateFutures[values.id],
-                                newStopLoss: parseFloat(e.target.value),
-                              },
-                            },
-                          };
-                        });
-                      }}
-                    ></input>
-                    <br></br>
-                    <label>Take profit</label>
-                    <input
-                      type="number"
-                      defaultValue={
-                        futuresData.updateFutures[values.id].newTakeProfit
-                      }
-                      value={futuresData.updateFutures[values.id].newTakeProfit}
-                      max={data.c}
-                      onChange={(e) => {
-                        setFuturesData((prev): FutureTypes => {
-                          return {
-                            ...prev,
-                            updateFutures: {
-                              ...prev.updateFutures,
-                              [values.id]: {
-                                ...prev.updateFutures[values.id],
-                                newTakeProfit: parseFloat(e.target.value),
-                              },
-                            },
-                          };
-                        });
-                      }}
-                    ></input>
+                                futurePositionUpdate(
+                                  values.id,
+                                  futuresData.updateFutures[values.id]
+                                    .newStopLoss,
+                                  futuresData.updateFutures[values.id]
+                                    .newTakeProfit,
+                                  setCurrentBalance
+                                );
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        futurePositionUpdate(
-                          values.id,
-                          futuresData.updateFutures[values.id].newStopLoss,
-                          futuresData.updateFutures[values.id].newTakeProfit,
-                          setCurrentBalance
-                        );
-                      }}
-                    >
-                      Change position
-                    </button>
-                  </form>
+                                let positions = getPositionsByPair(symbol);
 
-                  <input
-                    type="range"
-                    min={0}
-                    max={values.quantity}
-                    step={0.1}
-                    onChange={(e) => {
-                      setFuturesData((prev): FutureTypes => {
-                        return {
-                          ...prev,
-                          selledFutures: {
-                            ...prev.selledFutures,
-                            [values.id]: parseFloat(e.target.value),
-                          },
-                        };
-                      });
-                    }}
-                    value={futuresData.selledFutures[values.id]}
-                    defaultValue={futuresData.selledFutures[values.id]}
-                  ></input>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      handleSell(e, values.id);
-                    }}
-                  >
-                    Sell
-                  </button>
-                  </div>
-                  
-                </SwiperSlide>
-              );
-            })}
+                                positions.then((res) => {
+                                  if (Array.isArray(res)) {
+                                    setFuturesData((prev): FutureTypes => {
+                                      return { ...prev, sell: res };
+                                    });
+                                  }
+                                });
+                              }}
+                            >
+                              <label>Stop loss</label>
+                              <input
+                                type="number"
+                                defaultValue={
+                                  futuresData.updateFutures[values.id]
+                                    .newStopLoss
+                                }
+                                value={
+                                  futuresData.updateFutures[values.id]
+                                    .newStopLoss
+                                }
+                                min={data.c}
+                                onChange={(e) => {
+                                  setFuturesData((prev): FutureTypes => {
+                                    return {
+                                      ...prev,
+                                      updateFutures: {
+                                        ...prev.updateFutures,
+                                        [values.id]: {
+                                          ...prev.updateFutures[values.id],
+                                          newStopLoss: parseFloat(
+                                            e.target.value
+                                          ),
+                                        },
+                                      },
+                                    };
+                                  });
+                                }}
+                              ></input>
+                              <br></br>
+                              <label>Take profit</label>
+                              <input
+                                type="number"
+                                defaultValue={
+                                  futuresData.updateFutures[values.id]
+                                    .newTakeProfit
+                                }
+                                value={
+                                  futuresData.updateFutures[values.id]
+                                    .newTakeProfit
+                                }
+                                max={data.c}
+                                onChange={(e) => {
+                                  setFuturesData((prev): FutureTypes => {
+                                    return {
+                                      ...prev,
+                                      updateFutures: {
+                                        ...prev.updateFutures,
+                                        [values.id]: {
+                                          ...prev.updateFutures[values.id],
+                                          newTakeProfit: parseFloat(
+                                            e.target.value
+                                          ),
+                                        },
+                                      },
+                                    };
+                                  });
+                                }}
+                              ></input>
 
-          </Swiper>}
+                              <button type="submit">Change position</button>
+                            </form>
+
+                            <input
+                              type="range"
+                              min={0}
+                              max={values.quantity}
+                              step={0.1}
+                              onChange={(e) => {
+                                setFuturesData((prev): FutureTypes => {
+                                  return {
+                                    ...prev,
+                                    selledFutureShort: {
+                                      ...prev.selledFutureShort,
+                                      [values.id]: parseFloat(e.target.value),
+                                    },
+                                  };
+                                });
+                              }}
+                              value={futuresData.selledFutureShort[values.id]}
+                              defaultValue={
+                                futuresData.selledFutureShort[values.id]
+                              }
+                            ></input>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                handleSell(e, values.id);
+                              }}
+                            >
+                              Sell
+                            </button>
+                          </div>
+                        </SwiperSlide>
+                      );
+                    }
+                  })}
+                </Swiper>
+              </div>
+            )}
         </Tab>
 
         <Tab title="Order" eventKey="order">
+          <label>Quantity</label>
+          <input
+            name="quantity"
+            onChange={(e) => {
+              handleChange("orderOpen", e);
+            }}
+            className={Class.input}
+            type="number"
+          ></input>
 
-            <label>Quantity</label>
-            <input type="number"></input>
+          <label>Price</label>
+          <input
+            onChange={(e) => {
+              handleChange("orderOpen", e);
+            }}
+            name="price"
+            className={Class.input}
+            type="number"
+          ></input>
 
-            <label>Price</label>
-            <input type="number"></input>
+          <label>Leverage</label>
+          <input
+            onChange={(e) => {
+              handleChange("orderOpen", e);
+            }}
+            type="range"
+            min={0}
+            max={50}
+            step={1}
+            name="leverage"
+          ></input>
 
-            <label>Leverage</label>
-            <input type="range" min={0} max={50} step={1}></input>
-
-            <label>Type</label>
-            <Form.Select
+          <label>Type</label>
+          <Form.Select
             id="buyFutureType"
             aria-label="Default select example"
             name="type"
-            onChange={(
-              e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
-            ) => {
-              handleChange("buy", e);
+            onChange={(e) => {
+              handleChange("orderOpen", e);
             }}
           >
             <option value="SHORT">SHORT</option>
@@ -544,12 +624,16 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
             step={0.1}
             id="stopLoss"
           ></input>
-                
-          
-          
-          </Tab>
 
-
+          <button
+            type="button"
+            onClick={(e) => {
+              handleOrder(e);
+            }}
+          >
+            Open order
+          </button>
+        </Tab>
       </Tabs>
     );
   } else {
@@ -622,7 +706,6 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
         backdrop="static"
         keyboard={true}
         className={Class.modal}
-        
       >
         <Modal.Header closeButton>
           <Modal.Title>
