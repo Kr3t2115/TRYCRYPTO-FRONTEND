@@ -8,6 +8,8 @@ interface tableInterface {
   spotData: any;
   futuresData: any;
   limit?: boolean;
+  instrumentMain: any;
+  
 }
 
 interface instrument {
@@ -60,7 +62,7 @@ export default function Table({
 
   return (
     <div>
-        <Loader isOpen={loader}></Loader>
+      <Loader isOpen={loader}></Loader>
 
       <div className="container">
       

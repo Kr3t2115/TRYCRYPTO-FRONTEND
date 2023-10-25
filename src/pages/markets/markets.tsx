@@ -1,13 +1,16 @@
-import Table from "../../components/table/table";
+import Table from "./components/table/table";
 import SectionHeader from "../../components/sectionHeader/sectionHeader";
 import useWebSocket from 'react-use-websocket';
 import { useState, useEffect } from "react";
+import { createSearchParams, useSearchParams } from "react-router-dom";
 
 export default function Markets() {
 
   document.title = "Markets";
 
   const [spotData, setSpotData] = useState([])
+
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [futuresData, setFuturesData] = useState([])
 
@@ -41,10 +44,11 @@ export default function Markets() {
   }, [lastJsonMessage]);
   
 
+
   return (
     <div>
       <SectionHeader text="All crypto"></SectionHeader>
-      <Table futuresData={futuresData} spotData={spotData}></Table>
+      <Table futuresData={futuresData} spotData={spotData} instrumentMain={searchParams} setInstrumentMain={setSearchParams}></Table>
     </div>
   );
 }

@@ -273,7 +273,7 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
         });
       }
     });
-  }, [currentBalance]);
+  }, [currentBalance, futuresData.sell]);
 
   if (auth) {
     modalBody = (
@@ -460,6 +460,7 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
                                   futuresData.updateFutures[values.id]
                                     .newStopLoss
                                 }
+                                step={0.01}
                                 min={data.c}
                                 onChange={(e) => {
                                   setFuturesData((prev): FutureTypes => {
@@ -486,6 +487,7 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
                                   futuresData.updateFutures[values.id]
                                     .newTakeProfit
                                 }
+                                step={0.01}
                                 value={
                                   futuresData.updateFutures[values.id]
                                     .newTakeProfit
@@ -589,7 +591,7 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
             id="buyFutureType"
             aria-label="Default select example"
             name="type"
-            onChange={(e) => {
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
               handleChange("orderOpen", e);
             }}
           >
