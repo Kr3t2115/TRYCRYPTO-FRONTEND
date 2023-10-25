@@ -1,38 +1,34 @@
-import { ChangeEvent, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Class from "./sideCryptoPrice.module.css";
 import useWebSocket from "react-use-websocket";
-import { Modal, Button, Form, Tab, Tabs } from "react-bootstrap";
+import { Modal, Button, Tab, Tabs } from "react-bootstrap";
 import { AuthContext } from "../../../../context/authContext";
 import { Link } from "react-router-dom";
 import type { AuthType } from "../../../../context/authContext";
-import { BuyFutures } from "../../../../services/buyFutures";
 import getPositionsByPair from "../../../../services/getPositionsByPair";
-import { SellFutures } from "../../../../services/sellFutures";
-import futurePositionUpdate from "../../../../services/futurePositionUpdate";
-import { Navigation, Pagination } from "swiper"; // Import Swiper styles
-import "swiper/css";
-import "swiper/css/navigation";
-import { Swiper, SwiperSlide } from "swiper/react";
-import openOrderFutures from "../../../../services/openOrderFutures";
+import Buy from "./components/buy";
+import Sell from "./components/sell";
+import Order from "./components/order";
+
 interface TickerInterface {
-  e: string; // Event type
-  E: number; // Event time
-  s: string; // Symbol
-  ps: string; // Pair
-  p: string; // Price change
-  P: string; // Price change percent
-  w: string; // Weighted average price
-  c: string; // Last price
-  Q: string; // Last quantity
-  o: string; // Open price
-  h: string; // High price
-  l: string; // Low price
-  v: string; // Total traded volume
-  q: string; // Total traded base asset volume
-  O: number; // Statistics open time
-  C: number; // Statistics close time
-  F: number; // Last trade Id
-  n: number; // Total number of trades
+  e: string;
+  E: number;
+  s: string;
+  ps: string;
+  p: string;
+  P: string;
+  w: string;
+  c: string;
+  Q: string;
+  o: string;
+  h: string;
+  l: string;
+  v: string;
+  q: string;
+  O: number;
+  C: number;
+  F: number;
+  n: number;
 }
 
 interface SellType {
@@ -80,27 +76,25 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
 
   const [show, setShow] = useState<boolean>(false);
 
-  const [array, setArray] = useState([]);
-
   const [data, setData] = useState<TickerInterface>({
-    e: "", // Event type
-    E: 0, // Event time
-    s: "", // Symbol
-    ps: "", // Pair
-    p: "", // Price change
-    P: "", // Price change percent
-    w: "", // Weighted average price
-    c: "", // Last price
-    Q: "", // Last quantity
-    o: "", // Open price
-    h: "", // High price
-    l: "", // Low price
-    v: "", // Total traded volume
-    q: "", // Total traded base asset volume
-    O: 0, // Statistics open time
-    C: 0, // Statistics close time
-    F: 0, // Last trade Id
-    n: 0, // Total number of trades
+    e: "",
+    E: 0,
+    s: "",
+    ps: "",
+    p: "",
+    P: "",
+    w: "",
+    c: "",
+    Q: "",
+    o: "",
+    h: "",
+    l: "",
+    v: "",
+    q: "",
+    O: 0,
+    C: 0,
+    F: 0,
+    n: 0,
   });
 
   const [action, setAction] = useState<string>("Buy");
@@ -128,6 +122,13 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
       leverage: 1,
     },
   });
+  let indexOfName = symbol?.search("USDT");
+
+  let imageName = symbol?.slice(0, indexOfName).toLowerCase();
+
+  let imageLink = import.meta.env.VITE_API_URL + "/icon/" + imageName;
+
+  let lower = symbol.toLowerCase();
 
   const handleChange = (
     action: "buy" | "sell" | "orderOpen",
@@ -146,55 +147,6 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
       };
     });
   };
-
-  const handleBuy = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-
-    BuyFutures(
-      symbol,
-      {
-        quantity: futuresData.buy.quantity,
-        type: futuresData.buy.type,
-        takeProfit: futuresData.buy.takeProfit,
-        stopLoss: futuresData.buy.stopLoss,
-        leverage: futuresData.buy.leverage,
-      },
-      setCurrentBalance
-    );
-  };
-
-  const handleSell = (e: React.MouseEvent<HTMLButtonElement>, id: number) => {
-    e.preventDefault();
-
-    SellFutures(id, futuresData.selledFutureShort[id], setCurrentBalance);
-  };
-
-  const handleOrder = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-
-    openOrderFutures(
-      symbol,
-      {
-        quantity: futuresData.orderOpen.quantity,
-        price: futuresData.orderOpen.price,
-        type: futuresData.orderOpen.type,
-        takeProfit: futuresData.orderOpen.takeProfit,
-        stopLoss: futuresData.orderOpen.stopLoss,
-        leverage: futuresData.orderOpen.leverage,
-      },
-      setCurrentBalance
-    );
-  };
-
-  let indexOfName = symbol?.search("USDT");
-
-  let imageName = symbol?.slice(0, indexOfName).toLowerCase();
-
-  let imageLink = import.meta.env.VITE_API_URL + "/icon/" + imageName;
-
-  let lower = symbol.toLowerCase();
-
-  let modalBody;
 
   const formatNumber = (num: number, dec = 1) => {
     const calcDec = Math.pow(10, dec);
@@ -275,385 +227,12 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
     });
   }, [currentBalance, futuresData.sell]);
 
-  if (auth) {
-    modalBody = (
-      <Tabs
-        defaultActiveKey="open"
-        id="uncontrolled-tab-example"
-        onSelect={(e) => {
-          if (e == "open") {
-            setAction("Open position");
-          } else if (e == "close") {
-            setAction("Close position");
-          } else if (e == "order") {
-            setAction("Open order");
-          }
-        }}
-      >
-        <Tab eventKey="open" title="Open">
-          <label htmlFor="buyQuantity">Pass quantity to buy</label>
-          <input
-            name="quantity"
-            type="range"
-            max={futuresData.buy.maxQuantity}
-            min={0}
-            value={futuresData.buy.quantity}
-            onChange={(e) => {
-              handleChange("buy", e);
-            }}
-            step={0.1}
-          />
-
-          <input
-            name="quantity"
-            type="number"
-            max={futuresData.buy.maxQuantity}
-            className={Class.input}
-            value={futuresData.buy.quantity}
-            onChange={(e) => {
-              handleChange("buy", e);
-            }}
-            step={0.1}
-            id="buyQuantity"
-          ></input>
-
-          <label htmlFor="buyLeverage">
-            Set leverage power. Current: {futuresData.buy.leverage}
-          </label>
-
-          <input
-            name="leverage"
-            type="range"
-            min={1}
-            max={50}
-            value={futuresData.buy.leverage}
-            onChange={(e) => {
-              handleChange("buy", e);
-            }}
-            step={1}
-            id="buyLeverage"
-          ></input>
-
-          <label htmlFor="buyFutureType">Set type</label>
-
-          <Form.Select
-            id="buyFutureType"
-            aria-label="Default select example"
-            name="type"
-            onChange={(
-              e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
-            ) => {
-              handleChange("buy", e);
-            }}
-          >
-            <option value="SHORT">SHORT</option>
-            <option value="LONG">LONG</option>
-          </Form.Select>
-
-          <label htmlFor="sellingPrice">Set selling price.</label>
-          <input
-            name="takeProfit"
-            min={data.c}
-            type="number"
-            className={Class.input}
-            value={futuresData.buy.takeProfit}
-            onChange={(e) => {
-              handleChange("buy", e);
-            }}
-            step={0.1}
-            id="buyLeverage"
-          ></input>
-
-          <label htmlFor="stopLoss">Set stop loss price.</label>
-          <input
-            name="stopLoss"
-            max={data.c}
-            type="number"
-            className={Class.input}
-            value={futuresData.buy.stopLoss}
-            onChange={(e) => {
-              handleChange("buy", e);
-            }}
-            step={0.1}
-            id="stopLoss"
-          ></input>
-
-          <button
-            type="button"
-            className={Class.button + " " + Class.buttonSubmit}
-            onClick={(e) => {
-              handleBuy(e);
-            }}
-          >
-            Buy
-          </button>
-        </Tab>
-
-        <Tab eventKey="close" title="Close">
-          {futuresData.sell &&
-            futuresData.sell.some((e) => e.type === "SHORT") && (
-              <div>
-                <div>Short</div>
-                <Swiper
-                  centeredSlides={true}
-                  pagination={{ clickable: true }}
-                  modules={[Navigation, Pagination]}
-                  navigation
-                >
-                  {futuresData.sell.map((values: SellType) => {
-                    if (values.type === "SHORT") {
-                      return (
-                        <SwiperSlide key={"selledFuture" + values.id}>
-                          <div style={{ padding: "0px 50px" }}>
-                            <table style={{ width: "100%" }}>
-                              <tr>
-                                <th>Quantity: {values.quantity}</th>
-                                <th>Leverage: {values.leverage}</th>
-                                <th>
-                                  Take profit:{" "}
-                                  {values.takeProfit === null
-                                    ? "Not set"
-                                    : values.takeProfit}
-                                </th>
-                                <th>
-                                  Stop loss:{" "}
-                                  {values.stopLoss === null
-                                    ? "Not set"
-                                    : values.stopLoss}
-                                </th>
-                                <th>Purchase price: {values.purchasePrice}</th>
-                              </tr>
-                            </table>
-
-                            <form
-                              onSubmit={(e) => {
-                                e.preventDefault();
-
-                                futurePositionUpdate(
-                                  values.id,
-                                  futuresData.updateFutures[values.id]
-                                    .newStopLoss,
-                                  futuresData.updateFutures[values.id]
-                                    .newTakeProfit,
-                                  setCurrentBalance
-                                );
-
-                                let positions = getPositionsByPair(symbol);
-
-                                positions.then((res) => {
-                                  if (Array.isArray(res)) {
-                                    setFuturesData((prev): FutureTypes => {
-                                      return { ...prev, sell: res };
-                                    });
-                                  }
-                                });
-                              }}
-                            >
-                              <label>Stop loss</label>
-                              <input
-                                type="number"
-                                defaultValue={
-                                  futuresData.updateFutures[values.id]
-                                    .newStopLoss
-                                }
-                                value={
-                                  futuresData.updateFutures[values.id]
-                                    .newStopLoss
-                                }
-                                step={0.01}
-                                min={data.c}
-                                onChange={(e) => {
-                                  setFuturesData((prev): FutureTypes => {
-                                    return {
-                                      ...prev,
-                                      updateFutures: {
-                                        ...prev.updateFutures,
-                                        [values.id]: {
-                                          ...prev.updateFutures[values.id],
-                                          newStopLoss: parseFloat(
-                                            e.target.value
-                                          ),
-                                        },
-                                      },
-                                    };
-                                  });
-                                }}
-                              ></input>
-                              <br></br>
-                              <label>Take profit</label>
-                              <input
-                                type="number"
-                                defaultValue={
-                                  futuresData.updateFutures[values.id]
-                                    .newTakeProfit
-                                }
-                                step={0.01}
-                                value={
-                                  futuresData.updateFutures[values.id]
-                                    .newTakeProfit
-                                }
-                                max={data.c}
-                                onChange={(e) => {
-                                  setFuturesData((prev): FutureTypes => {
-                                    return {
-                                      ...prev,
-                                      updateFutures: {
-                                        ...prev.updateFutures,
-                                        [values.id]: {
-                                          ...prev.updateFutures[values.id],
-                                          newTakeProfit: parseFloat(
-                                            e.target.value
-                                          ),
-                                        },
-                                      },
-                                    };
-                                  });
-                                }}
-                              ></input>
-
-                              <button type="submit">Change position</button>
-                            </form>
-
-                            <input
-                              type="range"
-                              min={0}
-                              max={values.quantity}
-                              step={0.1}
-                              onChange={(e) => {
-                                setFuturesData((prev): FutureTypes => {
-                                  return {
-                                    ...prev,
-                                    selledFutureShort: {
-                                      ...prev.selledFutureShort,
-                                      [values.id]: parseFloat(e.target.value),
-                                    },
-                                  };
-                                });
-                              }}
-                              value={futuresData.selledFutureShort[values.id]}
-                              defaultValue={
-                                futuresData.selledFutureShort[values.id]
-                              }
-                            ></input>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                handleSell(e, values.id);
-                              }}
-                            >
-                              Sell
-                            </button>
-                          </div>
-                        </SwiperSlide>
-                      );
-                    }
-                  })}
-                </Swiper>
-              </div>
-            )}
-        </Tab>
-
-        <Tab title="Order" eventKey="order">
-          <label>Quantity</label>
-          <input
-            name="quantity"
-            onChange={(e) => {
-              handleChange("orderOpen", e);
-            }}
-            className={Class.input}
-            type="number"
-          ></input>
-
-          <label>Price</label>
-          <input
-            onChange={(e) => {
-              handleChange("orderOpen", e);
-            }}
-            name="price"
-            className={Class.input}
-            type="number"
-          ></input>
-
-          <label>Leverage</label>
-          <input
-            onChange={(e) => {
-              handleChange("orderOpen", e);
-            }}
-            type="range"
-            min={0}
-            max={50}
-            step={1}
-            name="leverage"
-          ></input>
-
-          <label>Type</label>
-          <Form.Select
-            id="buyFutureType"
-            aria-label="Default select example"
-            name="type"
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-              handleChange("orderOpen", e);
-            }}
-          >
-            <option value="SHORT">SHORT</option>
-            <option value="LONG">LONG</option>
-          </Form.Select>
-
-          <label htmlFor="sellingPrice">Set selling price.</label>
-          <input
-            name="takeProfit"
-            min={data.c}
-            type="number"
-            className={Class.input}
-            value={futuresData.buy.takeProfit}
-            onChange={(e) => {
-              handleChange("buy", e);
-            }}
-            step={0.1}
-            id="buyLeverage"
-          ></input>
-
-          <label htmlFor="stopLoss">Set stop loss price.</label>
-          <input
-            name="stopLoss"
-            max={data.c}
-            type="number"
-            className={Class.input}
-            value={futuresData.buy.stopLoss}
-            onChange={(e) => {
-              handleChange("buy", e);
-            }}
-            step={0.1}
-            id="stopLoss"
-          ></input>
-
-          <button
-            type="button"
-            onClick={(e) => {
-              handleOrder(e);
-            }}
-          >
-            Open order
-          </button>
-        </Tab>
-      </Tabs>
-    );
-  } else {
-    modalBody = (
-      <div className={Class.loginHrefCont}>
-        <Link to="/login" className={Class.loginHref}>
-          Login
-        </Link>
-      </div>
-    );
-  }
-
   return (
     <div>
       <table className={Class.table}>
         <tbody>
           <tr>
-            <td>
+            <td colSpan={2} style={{ textAlign: "center" }}>
               <img src={imageLink} alt={symbol + "icon"}></img> {symbol}
             </td>
           </tr>
@@ -714,7 +293,59 @@ export default function SideCryptoPrice({ symbol }: { symbol: string }) {
             {action} {symbol}
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body>{modalBody}</Modal.Body>
+        <Modal.Body>
+          {auth ? (
+            <Tabs
+              defaultActiveKey="open"
+              id="uncontrolled-tab-example"
+              onSelect={(e) => {
+                if (e == "open") {
+                  setAction("Open position");
+                } else if (e == "close") {
+                  setAction("Close position");
+                } else if (e == "order") {
+                  setAction("Open order");
+                }
+              }}
+            >
+              <Tab eventKey="open" title="Open">
+                <Buy
+                  futuresData={futuresData}
+                  setCurrentBalance={setCurrentBalance}
+                  symbol={symbol}
+                  data={data}
+                  handleChange={handleChange}
+                ></Buy>
+              </Tab>
+
+              <Tab eventKey="close" title="Close">
+                <Sell
+                  data={data}
+                  setCurrentBalance={setCurrentBalance}
+                  setFuturesData={setFuturesData}
+                  symbol={symbol}
+                  futuresData={futuresData}
+                ></Sell>
+              </Tab>
+
+              <Tab title="Order" eventKey="order">
+                <Order
+                  data={data}
+                  setCurrentBalance={setCurrentBalance}
+                  futuresData={futuresData}
+                  handleChange={handleChange}
+                  symbol={symbol}
+                ></Order>
+              </Tab>
+            </Tabs>
+          ) : (
+            <div className={Class.loginHrefCont}>
+              <Link to="/login" className={Class.loginHref}>
+                Login
+              </Link>
+            </div>
+          )}
+        </Modal.Body>
         <Modal.Footer>
           <Button
             variant="secondary"

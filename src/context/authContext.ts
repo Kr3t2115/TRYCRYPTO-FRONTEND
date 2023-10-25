@@ -1,20 +1,19 @@
-import { type } from "os";
-import { createContext } from "react";
+import { Dispatch, SetStateAction, createContext } from "react";
 
 export type AuthType = {
   auth: boolean;
-  setAuth: (value: boolean) => void;
+  setAuth: Dispatch<SetStateAction<boolean>>;
   currentBalance: string;
-  setCurrentBalance: (value: object|undefined) => void;
+  setCurrentBalance: Dispatch<SetStateAction<string>>;
   userInfo: object;
-  setUserInfo: (value: object) => void;
+  setUserInfo: Dispatch<SetStateAction<Object>>;
 };
 
 export const AuthContext = createContext<AuthType>({
   auth: false,
-  setAuth: (value: boolean) => {},
+  setAuth: () => {},
   currentBalance: "",
   setCurrentBalance: () => {},
   userInfo: {},
-  setUserInfo: (value: Object) => {},
+  setUserInfo: () => {},
 });

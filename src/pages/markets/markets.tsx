@@ -1,54 +1,52 @@
 import Table from "./components/table/table";
 import SectionHeader from "../../components/sectionHeader/sectionHeader";
-import useWebSocket from 'react-use-websocket';
+import useWebSocket from "react-use-websocket";
 import { useState, useEffect } from "react";
-import { createSearchParams, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 export default function Markets() {
-
   document.title = "Markets";
 
-  const [spotData, setSpotData] = useState([])
+  const [spotData, setSpotData] = useState([]);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [futuresData, setFuturesData] = useState([])
+  const [futuresData, setFuturesData] = useState([]);
 
-	const { lastJsonMessage } : any = useWebSocket(
-		import.meta.env.VITE_WS_URL,
-	);
+  const { lastJsonMessage }: any = useWebSocket(import.meta.env.VITE_WS_URL);
 
   useEffect(() => {
+    setFuturesData([]);
 
-    setFuturesData([])
+    setSpotData([]);
 
-    setSpotData([])
+    if (lastJsonMessage !== null) {
+      const spotMap = new Map(Object.entries(lastJsonMessage?.spot));
 
-    if(lastJsonMessage !== null) {
+      spotMap.forEach((value: any, index) => {
+        value.name = index;
 
-          const spotMap = new Map(Object.entries(lastJsonMessage?.spot))
+        setSpotData((oldArray): any => [...oldArray, value]);
+      });
+      const futuresMap = new Map(Object.entries(lastJsonMessage?.futures));
 
-          spotMap.forEach((value: any, index) => {
+      futuresMap.forEach((value: any, index) => {
+        value.name = index;
 
-            value.name = index
-
-            setSpotData((oldArray): any => [...oldArray, value]);
-          })  
-          const futuresMap = new Map(Object.entries(lastJsonMessage?.futures))
-
-          futuresMap.forEach((value : any , index) => {
-            value.name = index
-
-            setFuturesData((oldArray): any => [...oldArray, value]);          })  
+        setFuturesData((oldArray): any => [...oldArray, value]);
+      });
     }
   }, [lastJsonMessage]);
-  
-
 
   return (
     <div>
       <SectionHeader text="All crypto"></SectionHeader>
-      <Table futuresData={futuresData} spotData={spotData} instrumentMain={searchParams} setInstrumentMain={setSearchParams}></Table>
+      <Table
+        futuresData={futuresData}
+        spotData={spotData}
+        instrumentMain={searchParams}
+        setInstrumentMain={setSearchParams}
+      ></Table>
     </div>
   );
 }

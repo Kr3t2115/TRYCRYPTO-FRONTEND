@@ -19,12 +19,10 @@ export default function Table({
   limit,
   instrumentMain,
   setInstrumentMain,
-}: tableInterface) 
-{
+}: tableInterface) {
+  const [currentData, setCurrentData] = useState([]);
 
-  const [currentData , setCurrentData] = useState([]);
-
-  const [loader , setLoader ] = useState<boolean>(false);
+  const [loader, setLoader] = useState<boolean>(false);
 
   useEffect(() => {
     document.title = "Home Page";
@@ -39,78 +37,84 @@ export default function Table({
   });
 
   useEffect(() => {
-
-    if(instrumentMain.get("name") == "Spot") {
-      setCurrentData(spotData)
+    if (instrumentMain.get("name") == "Spot") {
+      setCurrentData(spotData);
     }
-    
-    setLoader(false)
 
-  }, [spotData])
-
+    setLoader(false);
+  }, [spotData]);
 
   useEffect(() => {
-    if(instrumentMain.get("name") == "Futures") {
-      setCurrentData(futuresData)
+    if (instrumentMain.get("name") == "Futures") {
+      setCurrentData(futuresData);
     }
-    setLoader(false)
-
-  }, [futuresData])
+    setLoader(false);
+  }, [futuresData]);
 
   useEffect(() => {
-    if(instrumentMain.get("name") === null) {
-      instrumentMain.set("name" , "Spot");
+    if (instrumentMain.get("name") === null) {
+      instrumentMain.set("name", "Spot");
     }
-  }, [])
+  }, []);
 
+  useEffect(() => {}, [instrumentMain]);
 
   return (
     <div>
       <Loader isOpen={loader}></Loader>
-
       <div className="container">
-      
-      <div className={classes.mainCont}>
-        <div className={classes.instrument}>
-          <div className={classes.instrumentButtonCont}>
-            <button
-              className={classes.instrumentButton + " "+ (instrumentMain.get("name") == "Spot" ? classes.buttonActive : " ")}
-              onClick={() => {
-                setInstrumentMain(createSearchParams({name: "Spot"}));
-                setLoader(true);
-              }}
-            >
-              Spot
-            </button>
+        <div className={classes.mainCont}>
+          <div className={classes.instrument}>
+            <div className={classes.instrumentButtonCont}>
+              <button
+                className={
+                  classes.instrumentButton +
+                  " " +
+                  (instrumentMain.get("name") == "Spot"
+                    ? classes.buttonActive
+                    : " ")
+                }
+                onClick={() => {
+                  setInstrumentMain(createSearchParams({ name: "Spot" }));
+                  setLoader(true);
+                }}
+              >
+                Spot
+              </button>
 
-            <button
-              className={classes.instrumentButton + " "+ (instrumentMain.get("name") == "Futures" ? classes.buttonActive : " ")}
-              onClick={() => {
-                setInstrumentMain(createSearchParams({name: "Futures"}));
-                               setLoader(true);
-              }}
-            >
-              Futures
-            </button>
+              <button
+                className={
+                  classes.instrumentButton +
+                  " " +
+                  (instrumentMain.get("name") == "Futures"
+                    ? classes.buttonActive
+                    : " ")
+                }
+                onClick={() => {
+                  setInstrumentMain(createSearchParams({ name: "Futures" }));
+                  setLoader(true);
+                }}
+              >
+                Futures
+              </button>
+            </div>
+
+            <div className={classes.instrumentTitle}>
+              Used instrument is: {instrumentMain.get("name")}
+            </div>
           </div>
-
-          <div className={classes.instrumentTitle}>Used instrument is: {instrumentMain.get("name")}</div>
-        </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  echo siedem
-        <div className={classes.tableContainer}>
-          <table className="table">
-            <TableHeader></TableHeader>
-            <TableBody
-              data={currentData}
-              limit={limit}
-              instrument={instrumentMain.get("name")}
-            ></TableBody>
-          </table>
+          <div className={classes.tableContainer}>
+            <table className="table">
+              <TableHeader></TableHeader>
+              <TableBody
+                data={currentData}
+                limit={limit}
+                instrument={instrumentMain.get("name")}
+              ></TableBody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
-                                                                                                                                                                                                                                                                                                                                                                                                      echo siedem
-    </div>
-
   );
 }

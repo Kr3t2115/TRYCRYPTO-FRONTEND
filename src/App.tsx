@@ -16,33 +16,31 @@ i18n.use(initReactI18next).init({
 });
 
 function App() {
-  const [logged, setLogged] = useState<boolean>(false);
+  const [auth, setAuth] = useState<boolean>(false);
 
-  const [currentBalance, setCurrentBalance] = useState<Object>(
+  const [currentBalance, setCurrentBalance] = useState<string>(
     JSON.stringify({})
   );
 
   const [userInfo, setUserInfo] = useState<Object>(JSON.stringify({}));
 
   useEffect(() => {
-    if (logged === true) {
+    if (auth === true) {
       setInterval(() => {
         refreshToken();
       }, 240000);
     }
-  }, [logged]);
-
+  }, [auth]);
 
   useEffect(() => {
-    console.log(currentBalance)
-  }, [currentBalance])
-
+    console.log(currentBalance);
+  }, [currentBalance]);
 
   return (
     <AuthContext.Provider
       value={{
-        auth: logged,
-        setAuth: setLogged,
+        auth: auth,
+        setAuth: setAuth,
         setCurrentBalance: setCurrentBalance,
         currentBalance: currentBalance,
         userInfo: userInfo,
