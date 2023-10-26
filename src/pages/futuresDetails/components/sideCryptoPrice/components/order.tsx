@@ -1,6 +1,7 @@
 import { Form } from "react-bootstrap";
 import Class from "../sideCryptoPrice.module.css";
 import openOrderFutures from "../../../../../services/openOrderFutures";
+import { useEffect, useRef, useState } from "react";
 
 export default function Order({
   handleChange,
@@ -15,7 +16,13 @@ export default function Order({
   symbol: any;
   setCurrentBalance: any;
 }) {
+
+  const [leverageProgres, setLeverageProgres] = useState<number>(1);
+
+  const  levereageRef = useRef<HTMLInputElement | null>(null);
+
   const handleOrder = (e: React.MouseEvent<HTMLButtonElement>) => {
+
     e.preventDefault();
 
     openOrderFutures(
@@ -31,6 +38,12 @@ export default function Order({
       setCurrentBalance
     );
   };
+  useEffect(() => {
+
+    levereageRef.current?.style.
+    setProperty("--progress" , leverageProgres + "%");
+
+  }, [leverageProgres])
 
   return (
     <>
@@ -56,28 +69,35 @@ export default function Order({
 
       <label>Leverage</label>
       <input
+      ref={levereageRef}
         onChange={(e) => {
           handleChange("orderOpen", e);
+
+          let progress = (parseFloat(e.target.value) / parseFloat(e.target.max)) * 100;
+
+          setLeverageProgres(progress);
         }}
         type="range"
         min={0}
         max={50}
         step={1}
         name="leverage"
+        className={Class.dzigwnia}
       ></input>
 
       <label>Type</label>
-      <Form.Select
+      <select
         id="buyFutureType"
         aria-label="Default select example"
         name="type"
         onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
           handleChange("orderOpen", e);
         }}
+        className={Class.select}
       >
         <option value="SHORT">SHORT</option>
         <option value="LONG">LONG</option>
-      </Form.Select>
+      </select>
 
       <label htmlFor="sellingPrice">Set selling price.</label>
       <input
@@ -109,6 +129,7 @@ export default function Order({
 
       <button
         type="button"
+        className={Class.buttonSubmit +" " + Class.button}
         onClick={(e) => {
           handleOrder(e);
         }}

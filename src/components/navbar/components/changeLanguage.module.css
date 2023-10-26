@@ -2,7 +2,7 @@
   width: 130px;
   height: 35px;
   border-radius: 15px;
-  z-index: 1335;
+  z-index: 100;
   background-color: black;
   color: var(--font-color);
   position: absolute;
